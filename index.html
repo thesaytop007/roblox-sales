@@ -1,170 +1,235 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Roblox Sales Log</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-:root {
-  --bg: #f7f7f5;
-  --surface: #ffffff;
-  --border: #e4e4e0;
-  --border2: #d0d0ca;
-  --text: #1a1a18;
-  --muted: #888880;
-  --accent: #2563eb;
-  --accent-bg: #eff6ff;
-  --green: #16a34a;
-  --green-bg: #f0fdf4;
-  --red: #dc2626;
-  --red-bg: #fef2f2;
-  --yellow: #d97706;
-  --yellow-bg: #fffbeb;
-  --radius: 10px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+:root,[data-theme="light"]{
+  --bg:#f7f7f5;--surface:#fff;--surface2:#f0f0ed;--border:#e4e4e0;--border2:#d0d0ca;
+  --text:#1a1a18;--muted:#888880;--accent:#2563eb;--accent-bg:#eff6ff;
+  --green:#16a34a;--green-bg:#f0fdf4;--red:#dc2626;--red-bg:#fef2f2;
+  --yellow:#d97706;--yellow-bg:#fffbeb;--shadow:0 1px 3px rgba(0,0,0,.08);--radius:10px;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'IBM Plex Sans Thai',sans-serif; background:var(--bg); color:var(--text); font-size:14px; line-height:1.6; min-height:100vh; }
-
-.layout { display:flex; min-height:100vh; }
+[data-theme="dark"]{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#13151f;--border:#2a2d3a;--border2:#3a3d4a;
+  --text:#e8e8f0;--muted:#6b6b80;--accent:#4f8ef7;--accent-bg:#1a2340;
+  --green:#22c55e;--green-bg:#0f2a1a;--red:#f87171;--red-bg:#2a1010;
+  --yellow:#fbbf24;--yellow-bg:#2a2010;--shadow:0 1px 3px rgba(0,0,0,.4);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh;transition:background .2s,color .2s}
+.layout{display:flex;min-height:100vh}
 
 /* SIDEBAR */
-.sidebar { width:220px; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:50; }
-.sidebar-logo { padding:20px 20px 16px; border-bottom:1px solid var(--border); }
-.logo-text { font-size:15px; font-weight:600; color:var(--text); }
-.logo-sub { font-size:11px; color:var(--muted); margin-top:1px; }
-.sidebar-nav { padding:12px 10px; flex:1; }
-.nav-item { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:7px; cursor:pointer; font-size:13.5px; color:var(--muted); font-weight:400; transition:background 0.15s,color 0.15s; margin-bottom:2px; user-select:none; }
-.nav-item:hover { background:var(--bg); color:var(--text); }
-.nav-item.active { background:var(--accent-bg); color:var(--accent); font-weight:500; }
-.nav-icon { font-size:15px; width:18px; text-align:center; flex-shrink:0; }
-.sidebar-footer { padding:14px 16px; border-top:1px solid var(--border); font-size:11px; color:var(--muted); }
+.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;transition:background .2s,border-color .2s}
+.sidebar-logo{padding:18px 18px 14px;border-bottom:1px solid var(--border)}
+.logo-text{font-size:15px;font-weight:600}
+.logo-sub{font-size:11px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:5px}
+.sidebar-nav{padding:10px 8px;flex:1;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--muted);margin-bottom:2px;user-select:none;transition:background .15s,color .15s}
+.nav-item:hover{background:var(--bg);color:var(--text)}
+.nav-item.active{background:var(--accent-bg);color:var(--accent);font-weight:500}
+.nav-icon{font-size:14px;width:16px;text-align:center;flex-shrink:0}
+.sidebar-footer{padding:10px 14px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.footer-text{font-size:11px;color:var(--muted);white-space:nowrap}
 
-/* SYNC STATUS */
-.sync-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:#ccc; margin-right:5px; transition:background 0.3s; }
-.sync-dot.online { background:var(--green); }
-.sync-dot.syncing { background:var(--yellow); animation:pulse 1s infinite; }
-.sync-dot.error { background:var(--red); }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+/* THEME TOGGLE */
+.theme-btn{background:var(--bg);border:1px solid var(--border);border-radius:999px;padding:4px 10px;cursor:pointer;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px;white-space:nowrap;transition:all .2s}
+.theme-btn:hover{color:var(--text);border-color:var(--border2)}
+
+/* SYNC */
+.sync-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#555;flex-shrink:0}
+.sync-dot.online{background:var(--green)}.sync-dot.syncing{background:var(--yellow);animation:pulse 1s infinite}.sync-dot.error{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* MAIN */
-.main { margin-left:220px; flex:1; padding:32px 32px 60px; max-width:calc(100vw - 220px); }
-.page { display:none; }
-.page.active { display:block; animation:up 0.2s ease; }
-@keyframes up { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
-.page-header { margin-bottom:24px; }
-.page-title { font-size:20px; font-weight:600; letter-spacing:-0.4px; }
-.page-sub { font-size:13px; color:var(--muted); margin-top:2px; }
+.main{margin-left:220px;flex:1;padding:28px 28px 80px;max-width:calc(100vw - 220px)}
+.page{display:none}.page.active{display:block;animation:up .2s ease}
+@keyframes up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.page-header{margin-bottom:20px}
+.page-title{font-size:19px;font-weight:600;letter-spacing:-.4px}
+.page-sub{font-size:12.5px;color:var(--muted);margin-top:2px}
 
 /* CARDS */
-.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; margin-bottom:16px; }
-.card-title { font-size:13px; font-weight:600; color:var(--text); margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; }
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px;transition:background .2s,border-color .2s}
+.card-title{font-size:12.5px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
 
 /* STATS */
-.stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
-.stat { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow); }
-.stat-label { font-size:11.5px; color:var(--muted); margin-bottom:6px; font-weight:500; }
-.stat-num { font-family:'IBM Plex Mono',monospace; font-size:22px; font-weight:600; color:var(--text); letter-spacing:-0.5px; }
-.stat-num.green { color:var(--green); }
-.stat-num.red { color:var(--red); }
-.stat-num.blue { color:var(--accent); }
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);transition:background .2s,border-color .2s}
+.stat-label{font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:500}
+.stat-num{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;letter-spacing:-.5px}
+.stat-num.green{color:var(--green)}.stat-num.red{color:var(--red)}.stat-num.blue{color:var(--accent)}.stat-num.yellow{color:var(--yellow)}
 
 /* FORM */
-.form-row { display:grid; gap:12px; margin-bottom:14px; }
-.cols-2 { grid-template-columns:repeat(2,1fr); }
-.cols-3 { grid-template-columns:repeat(3,1fr); }
-.field { display:flex; flex-direction:column; gap:5px; }
-label { font-size:12px; font-weight:500; color:var(--muted); }
-input,select { background:var(--bg); border:1px solid var(--border); border-radius:7px; padding:8px 10px; font-family:inherit; font-size:13.5px; color:var(--text); transition:border-color 0.15s,box-shadow 0.15s; width:100%; }
-input:focus,select:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(37,99,235,0.1); background:#fff; }
-input::placeholder { color:#bbb; }
-select option { background:#fff; }
+.form-row{display:grid;gap:10px;margin-bottom:12px}
+.cols-2{grid-template-columns:repeat(2,1fr)}.cols-3{grid-template-columns:repeat(3,1fr)}.cols-4{grid-template-columns:repeat(4,1fr)}
+.field{display:flex;flex-direction:column;gap:4px}
+label{font-size:11.5px;font-weight:500;color:var(--muted)}
+input,select,textarea{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-family:inherit;font-size:13px;color:var(--text);width:100%;transition:border-color .15s,box-shadow .15s,background .2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,142,247,.15);background:var(--surface)}
+input::placeholder,textarea::placeholder{color:var(--muted);opacity:.5}
+select option{background:var(--surface);color:var(--text)}
+.input-prefix{display:flex;align-items:center;gap:0}
+.input-prefix .prefix-label{background:var(--border);border:1px solid var(--border);border-right:none;border-radius:7px 0 0 7px;padding:7px 10px;font-size:12px;color:var(--muted);white-space:nowrap;line-height:1.6}
+.input-prefix input{border-radius:0 7px 7px 0}
 
 /* BUTTONS */
-.btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:7px; border:none; cursor:pointer; font-family:inherit; font-size:13px; font-weight:500; transition:opacity 0.15s,transform 0.1s; }
-.btn:active { transform:scale(0.98); }
-.btn-primary { background:var(--accent); color:#fff; }
-.btn-primary:hover { opacity:0.88; }
-.btn-danger { background:var(--red-bg); color:var(--red); border:1px solid #fecaca; }
-.btn-danger:hover { opacity:0.8; }
-.btn-sm { padding:4px 10px; font-size:12px; }
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:7px;border:none;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:500;transition:opacity .15s,transform .1s}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{opacity:.88}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}.btn-ghost:hover{color:var(--text);border-color:var(--border2)}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bg)}.btn-danger:hover{opacity:.8}
+.btn-warning{background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow-bg)}.btn-warning:hover{opacity:.8}
+.btn-sm{padding:3px 9px;font-size:11.5px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
 
 /* TABLE */
-.table-wrap { overflow-x:auto; }
-table { width:100%; border-collapse:collapse; font-size:13px; }
-th { text-align:left; padding:8px 12px; font-size:11.5px; font-weight:600; color:var(--muted); border-bottom:1px solid var(--border); white-space:nowrap; }
-td { padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:middle; }
-tr:last-child td { border-bottom:none; }
-tbody tr:hover { background:var(--bg); }
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;padding:7px 10px;font-size:11px;font-weight:600;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--surface2)}
 
 /* BADGES */
-.badge { display:inline-flex; align-items:center; padding:2px 8px; border-radius:999px; font-size:11.5px; font-weight:500; }
-.badge-blue { background:var(--accent-bg); color:var(--accent); }
-.badge-green { background:var(--green-bg); color:var(--green); }
-.badge-gray { background:#f3f3f0; color:var(--muted); }
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:11px;font-weight:500}
+.badge-blue{background:var(--accent-bg);color:var(--accent)}.badge-green{background:var(--green-bg);color:var(--green)}
+.badge-red{background:var(--red-bg);color:var(--red)}.badge-gray{background:var(--border);color:var(--muted)}
+.badge-yellow{background:var(--yellow-bg);color:var(--yellow)}
 
 /* NUMBERS */
-.mono { font-family:'IBM Plex Mono',monospace; font-size:13px; }
-.num-pos { color:var(--green); font-weight:600; font-family:'IBM Plex Mono',monospace; }
-.num-neg { color:var(--red); font-weight:600; font-family:'IBM Plex Mono',monospace; }
-.num-neutral { font-family:'IBM Plex Mono',monospace; color:var(--text); }
+.mono{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
+.num-pos{color:var(--green);font-weight:600;font-family:'IBM Plex Mono',monospace}
+.num-neg{color:var(--red);font-weight:600;font-family:'IBM Plex Mono',monospace}
+.num-neutral{font-family:'IBM Plex Mono',monospace;color:var(--text)}
 
 /* EMPTY */
-.empty { text-align:center; padding:40px 20px; color:var(--muted); }
-.empty-icon { font-size:28px; margin-bottom:8px; opacity:0.5; }
-.empty-text { font-size:13px; }
+.empty{text-align:center;padding:36px 20px;color:var(--muted)}
+.empty-icon{font-size:26px;margin-bottom:7px;opacity:.4}
+.empty-text{font-size:12.5px}
 
-hr { border:none; border-top:1px solid var(--border); margin:16px 0; }
+hr{border:none;border-top:1px solid var(--border);margin:14px 0}
 
 /* PREVIEW */
-.preview-box { background:var(--green-bg); border:1px solid #bbf7d0; border-radius:var(--radius); padding:14px 16px; margin:12px 0; display:none; }
-.preview-row { display:flex; justify-content:space-between; align-items:center; padding:4px 0; font-size:13px; }
-.preview-row.total { border-top:1px solid #bbf7d0; margin-top:6px; padding-top:10px; font-weight:600; font-size:14px; }
+.preview-box{background:var(--green-bg);border:1px solid var(--green);border-radius:var(--radius);padding:12px 14px;margin:10px 0;display:none}
+.preview-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:12.5px}
+.preview-row.total{border-top:1px solid var(--border);margin-top:5px;padding-top:9px;font-weight:600;font-size:13.5px}
 
 /* SUMMARY */
-.summary-row { display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border); font-size:13.5px; }
-.summary-row:last-child { border:none; }
-.summary-row.total { font-weight:600; font-size:15px; padding-top:12px; border-top:2px solid var(--border2); margin-top:4px; }
+.sum-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.sum-row:last-child{border:none}
+.sum-row.total{font-weight:600;font-size:14px;padding-top:10px;border-top:2px solid var(--border2);margin-top:3px;border-bottom:none}
 
-.two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
 
-/* LOADING OVERLAY */
-.loading-overlay { position:fixed; inset:0; background:rgba(247,247,245,0.85); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:999; gap:12px; font-size:14px; color:var(--muted); }
-.spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; }
-@keyframes spin { to{transform:rotate(360deg)} }
+/* RATE BAR */
+.rate-bar{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12.5px}
+.rate-val{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--accent);font-size:14px}
+.rate-time{font-size:11px;color:var(--muted)}
 
-::-webkit-scrollbar { width:5px; height:5px; }
-::-webkit-scrollbar-track { background:transparent; }
-::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+/* CHART */
+.chart-tabs{display:flex;gap:6px;margin-bottom:12px}
+.chart-tab{padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--muted);border:1px solid var(--border);transition:all .15s}
+.chart-tab.active{background:var(--accent-bg);color:var(--accent);border-color:var(--accent)}
+.chart-wrap{position:relative;height:220px}
 
-@media (max-width:800px) {
-  .sidebar { display:none; }
-  .main { margin-left:0; padding:16px; max-width:100vw; }
-  .stats-row { grid-template-columns:repeat(2,1fr); }
-  .two-col { grid-template-columns:1fr; }
-  .cols-3 { grid-template-columns:repeat(2,1fr); }
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.modal-title{font-size:15px;font-weight:600;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--muted);font-size:18px;line-height:1;padding:2px 6px;border-radius:5px}
+.modal-close:hover{color:var(--text);background:var(--bg)}
+
+/* WALLET */
+.wallet-big{font-family:'IBM Plex Mono',monospace;font-size:32px;font-weight:700;color:var(--green);letter-spacing:-1px;margin:6px 0 3px}
+
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:rgba(10,12,18,.8);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:10px;font-size:13px;color:var(--muted);backdrop-filter:blur(4px)}
+.spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* SELLER TAG */
+.seller-tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:11.5px;font-weight:600;background:var(--accent-bg);color:var(--accent)}
+
+/* INFO BOX */
+.info-box{background:var(--yellow-bg);border:1px solid var(--yellow);border-radius:8px;padding:10px 13px;font-size:12.5px;margin-bottom:12px}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+@media(max-width:800px){
+  .sidebar{display:none}
+  .main{margin-left:0;padding:14px 12px 90px;max-width:100vw}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .two-col,.three-col{grid-template-columns:1fr}
+  .cols-3,.cols-4{grid-template-columns:repeat(2,1fr)}
+  .mobile-nav{display:flex!important}
 }
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:99;padding:6px 0 12px}
+.mobile-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9.5px;color:var(--muted);cursor:pointer;padding:3px}
+.mobile-nav-item.active{color:var(--accent)}
+.mobile-nav-item span{font-size:17px}
 </style>
 </head>
 <body>
 
-<!-- LOADING -->
 <div class="loading-overlay" id="loading">
   <div class="spinner"></div>
   <div>กำลังเชื่อมต่อ Firebase...</div>
 </div>
 
-<div class="layout">
+<!-- EDIT PRODUCT MODAL -->
+<div class="modal-overlay" id="edit-modal" style="display:none">
+  <div class="modal">
+    <div class="modal-title">✏️ แก้ไขสินค้า<button class="modal-close" onclick="closeEditModal()">✕</button></div>
+    <input type="hidden" id="edit-key">
+    <div class="form-row cols-2">
+      <div class="field"><label>ชื่อสินค้า *</label><input id="edit-name"></div>
+      <div class="field"><label>แมพ</label><select id="edit-map"></select></div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="field"><label>ประเภทสินค้า</label>
+        <select id="edit-type"><option>Item / ไอเทม</option><option>Pet / เพ็ต</option><option>Currency / เงินเกม</option><option>Account / บัญชี</option><option>Gamepass</option><option>บริการ</option></select>
+      </div>
+      <div class="field"><label>ต้นทุน (฿)</label><input id="edit-cost" type="number" min="0"></div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="field"><label>ราคาขายปกติ ($)</label><input id="edit-price" type="number" min="0" step="0.01"></div>
+      <div class="field"><label>ค่าธรรมเนียมปกติ (%)</label><input id="edit-fee" type="number" min="0" max="100" step="0.01"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>หมายเหตุ</label><input id="edit-note"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveEditProduct()">💾 บันทึก</button>
+      <button class="btn btn-ghost" onclick="closeEditModal()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
 
-<!-- SIDEBAR -->
+<!-- SELLER SETTINGS MODAL -->
+<div class="modal-overlay" id="seller-modal" style="display:none">
+  <div class="modal">
+    <div class="modal-title">👥 ตั้งชื่อผู้ขาย<button class="modal-close" onclick="document.getElementById('seller-modal').style.display='none'">✕</button></div>
+    <div class="form-row cols-2">
+      <div class="field"><label>ผู้ขายคนที่ 1</label><input id="seller1-name" placeholder="ชื่อผู้ขาย 1"></div>
+      <div class="field"><label>ผู้ขายคนที่ 2</label><input id="seller2-name" placeholder="ชื่อผู้ขาย 2"></div>
+    </div>
+    <button class="btn btn-primary" onclick="saveSellers()">💾 บันทึกชื่อ</button>
+  </div>
+</div>
+
+<div class="layout">
 <aside class="sidebar">
   <div class="sidebar-logo">
     <div class="logo-text">🎮 Roblox Sales Log</div>
-    <div class="logo-sub">
-      <span class="sync-dot" id="sync-dot"></span>
-      <span id="sync-label">กำลังเชื่อมต่อ...</span>
-    </div>
+    <div class="logo-sub"><span class="sync-dot" id="sync-dot"></span><span id="sync-label">กำลังเชื่อมต่อ...</span></div>
   </div>
   <nav class="sidebar-nav">
     <div class="nav-item active" onclick="go('dashboard')" id="nav-dashboard"><span class="nav-icon">📊</span> ภาพรวม</div>
@@ -172,533 +237,810 @@ hr { border:none; border-top:1px solid var(--border); margin:16px 0; }
     <div class="nav-item" onclick="go('products')" id="nav-products"><span class="nav-icon">📦</span> สินค้า</div>
     <div class="nav-item" onclick="go('sales')" id="nav-sales"><span class="nav-icon">📝</span> บันทึกการขาย</div>
     <div class="nav-item" onclick="go('summary')" id="nav-summary"><span class="nav-icon">💰</span> สรุปกำไร</div>
+    <div class="nav-item" onclick="go('wallet')" id="nav-wallet"><span class="nav-icon">👛</span> ยอดเงินในเว็บ</div>
+    <hr style="margin:8px 4px">
+    <div class="nav-item" onclick="document.getElementById('seller-modal').style.display='flex'"><span class="nav-icon">👥</span> ตั้งชื่อผู้ขาย</div>
   </nav>
-  <div class="sidebar-footer">Sync แบบ Real-time 🔄</div>
+  <div class="sidebar-footer">
+    <span class="footer-text">Real-time 🔄</span>
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">☀️ สว่าง</button>
+  </div>
 </aside>
+
+<div class="mobile-nav">
+  <div class="mobile-nav-item active" onclick="go('dashboard')" id="mnav-dashboard"><span>📊</span>หน้าหลัก</div>
+  <div class="mobile-nav-item" onclick="go('maps')" id="mnav-maps"><span>🗺️</span>แมพ</div>
+  <div class="mobile-nav-item" onclick="go('products')" id="mnav-products"><span>📦</span>สินค้า</div>
+  <div class="mobile-nav-item" onclick="go('sales')" id="mnav-sales"><span>📝</span>ขาย</div>
+  <div class="mobile-nav-item" onclick="go('wallet')" id="mnav-wallet"><span>👛</span>เงิน</div>
+</div>
 
 <main class="main">
 
-  <!-- DASHBOARD -->
-  <div class="page active" id="page-dashboard">
-    <div class="page-header">
-      <div class="page-title">ภาพรวม</div>
-      <div class="page-sub">สรุปข้อมูลทั้งหมดแบบ real-time</div>
-    </div>
-    <div class="stats-row">
-      <div class="stat"><div class="stat-label">ยอดขายรวม</div><div class="stat-num blue" id="d-revenue">฿0</div></div>
-      <div class="stat"><div class="stat-label">ต้นทุนรวม</div><div class="stat-num red" id="d-cost">฿0</div></div>
-      <div class="stat"><div class="stat-label">ค่าธรรมเนียมรวม</div><div class="stat-num" style="color:var(--yellow)" id="d-fee">฿0</div></div>
-      <div class="stat"><div class="stat-label">กำไรสุทธิ</div><div class="stat-num green" id="d-profit">฿0</div></div>
-    </div>
-    <div class="two-col">
-      <div class="card">
-        <div class="card-title">ข้อมูลทั้งหมด</div>
-        <div class="summary-row"><span style="color:var(--muted)">แมพทั้งหมด</span><span class="mono" id="d-maps">0 แมพ</span></div>
-        <div class="summary-row"><span style="color:var(--muted)">สินค้าทั้งหมด</span><span class="mono" id="d-products">0 ชิ้น</span></div>
-        <div class="summary-row"><span style="color:var(--muted)">รายการขายทั้งหมด</span><span class="mono" id="d-sales">0 รายการ</span></div>
-        <div class="summary-row"><span style="color:var(--muted)">% กำไรเฉลี่ย</span><span class="mono num-pos" id="d-margin">0%</span></div>
-      </div>
-      <div class="card">
-        <div class="card-title">รายการล่าสุด</div>
-        <div id="d-recent"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">ยังไม่มีรายการ</div></div></div>
-      </div>
-    </div>
+<!-- ── DASHBOARD ── -->
+<div class="page active" id="page-dashboard">
+  <div class="page-header">
+    <div class="page-title">ภาพรวม</div>
+    <div class="page-sub">สรุปข้อมูลแบบ real-time</div>
   </div>
 
-  <!-- MAPS -->
-  <div class="page" id="page-maps">
-    <div class="page-header">
-      <div class="page-title">แมพ</div>
-      <div class="page-sub">จัดการแมพที่คุณขายสินค้า</div>
+  <!-- Rate bar -->
+  <div class="rate-bar" id="rate-bar">
+    <span>💱 อัตราแลกเปลี่ยน:</span>
+    <span class="rate-val" id="rate-display">กำลังโหลด...</span>
+    <span class="rate-time" id="rate-time"></span>
+    <button class="btn btn-ghost btn-sm" onclick="fetchRate()">🔄 รีเฟรช</button>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat"><div class="stat-label">ยอดขายรวม ($)</div><div class="stat-num blue" id="d-revenue">$0</div></div>
+    <div class="stat"><div class="stat-label">ต้นทุนรวม (฿)</div><div class="stat-num red" id="d-cost">฿0</div></div>
+    <div class="stat"><div class="stat-label">ค่าธรรมเนียมรวม ($)</div><div class="stat-num yellow" id="d-fee">$0</div></div>
+    <div class="stat"><div class="stat-label">กำไรสุทธิ (฿)</div><div class="stat-num green" id="d-profit">฿0</div></div>
+  </div>
+
+  <!-- Chart -->
+  <div class="card">
+    <div class="card-title">
+      <span>กราฟยอดขาย</span>
+      <div class="chart-tabs">
+        <div class="chart-tab active" onclick="setChartPeriod('day',this)">รายวัน</div>
+        <div class="chart-tab" onclick="setChartPeriod('week',this)">รายสัปดาห์</div>
+        <div class="chart-tab" onclick="setChartPeriod('month',this)">รายเดือน</div>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="sales-chart"></canvas></div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">ข้อมูลทั้งหมด</div>
+      <div class="sum-row"><span style="color:var(--muted)">แมพทั้งหมด</span><span class="mono" id="d-maps">0</span></div>
+      <div class="sum-row"><span style="color:var(--muted)">สินค้าทั้งหมด</span><span class="mono" id="d-products">0</span></div>
+      <div class="sum-row"><span style="color:var(--muted)">รายการขายทั้งหมด</span><span class="mono" id="d-sales">0</span></div>
+      <div class="sum-row"><span style="color:var(--muted)">% กำไรเฉลี่ย</span><span class="num-pos" id="d-margin">0%</span></div>
     </div>
     <div class="card">
-      <div class="card-title">เพิ่มแมพใหม่</div>
-      <div class="form-row cols-3">
-        <div class="field"><label>ชื่อแมพ *</label><input id="m-name" placeholder="เช่น Blox Fruits, Adopt Me..."></div>
-        <div class="field"><label>หมวดหมู่</label>
-          <select id="m-cat"><option>RPG</option><option>Simulator</option><option>Tycoon</option><option>Adventure</option><option>Battle Royale</option><option>อื่นๆ</option></select>
+      <div class="card-title">รายการล่าสุด</div>
+      <div id="d-recent"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">ยังไม่มีรายการ</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MAPS ── -->
+<div class="page" id="page-maps">
+  <div class="page-header"><div class="page-title">แมพ</div><div class="page-sub">จัดการแมพที่ขายสินค้า</div></div>
+  <div class="card">
+    <div class="card-title">เพิ่มแมพใหม่</div>
+    <div class="form-row cols-3">
+      <div class="field"><label>ชื่อแมพ *</label><input id="m-name" placeholder="เช่น Blox Fruits..."></div>
+      <div class="field"><label>หมวดหมู่</label>
+        <select id="m-cat"><option>RPG</option><option>Simulator</option><option>Tycoon</option><option>Adventure</option><option>Battle Royale</option><option>อื่นๆ</option></select>
+      </div>
+      <div class="field"><label>หมายเหตุ</label><input id="m-note" placeholder="(ไม่บังคับ)"></div>
+    </div>
+    <button class="btn btn-primary" onclick="addMap()">+ เพิ่มแมพ</button>
+  </div>
+  <div class="card">
+    <div class="card-title"><span>รายการแมพ</span><span class="badge badge-blue" id="m-count">0</span></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>ชื่อแมพ</th><th>หมวดหมู่</th><th>จำนวนสินค้า</th><th>หมายเหตุ</th><th></th></tr></thead>
+      <tbody id="m-tbody"><tr><td colspan="6"><div class="empty"><div class="empty-icon">🗺️</div><div class="empty-text">ยังไม่มีแมพ</div></div></td></tr></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ── PRODUCTS ── -->
+<div class="page" id="page-products">
+  <div class="page-header"><div class="page-title">สินค้า</div><div class="page-sub">จัดการและแก้ไขสินค้าได้ทุกเวลา</div></div>
+  <div class="card">
+    <div class="card-title">เพิ่มสินค้าใหม่</div>
+    <div class="form-row cols-3">
+      <div class="field"><label>ชื่อสินค้า *</label><input id="p-name" placeholder="เช่น Hell Dragon SSS Potion..."></div>
+      <div class="field"><label>แมพ</label><select id="p-map"><option value="">— ไม่ระบุ —</option></select></div>
+      <div class="field"><label>ประเภทสินค้า</label>
+        <select id="p-type"><option>Item / ไอเทม</option><option>Pet / เพ็ต</option><option>Currency / เงินเกม</option><option>Account / บัญชี</option><option>Gamepass</option><option>บริการ</option></select>
+      </div>
+    </div>
+    <div class="form-row cols-3">
+      <div class="field"><label>ต้นทุน (฿)</label><input id="p-cost" type="number" placeholder="0" min="0"></div>
+      <div class="field"><label>ราคาขายปกติ ($)</label><input id="p-price" type="number" placeholder="0.00" min="0" step="0.01"></div>
+      <div class="field"><label>ค่าธรรมเนียมปกติ (%)</label><input id="p-fee" type="number" placeholder="0" min="0" max="100" step="0.01" value="0"></div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="field"><label>หมายเหตุ</label><input id="p-note" placeholder="(ไม่บังคับ)"></div>
+    </div>
+    <button class="btn btn-primary" onclick="addProduct()">+ เพิ่มสินค้า</button>
+  </div>
+  <div class="card">
+    <div class="card-title"><span>รายการสินค้าทั้งหมด</span><span class="badge badge-blue" id="p-count">0</span></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>ชื่อสินค้า</th><th>แมพ</th><th>ประเภท</th><th>ต้นทุน (฿)</th><th>ราคาขาย ($)</th><th>ค่าธรรมเนียม</th><th>กำไร/ชิ้น*</th><th></th></tr></thead>
+      <tbody id="p-tbody"><tr><td colspan="9"><div class="empty"><div class="empty-icon">📦</div><div class="empty-text">ยังไม่มีสินค้า</div></div></td></tr></tbody>
+    </table></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px">* กำไร/ชิ้น คิดจากอัตราแลกเปลี่ยนปัจจุบัน</div>
+  </div>
+</div>
+
+<!-- ── SALES ── -->
+<div class="page" id="page-sales">
+  <div class="page-header"><div class="page-title">บันทึกการขาย</div><div class="page-sub">บันทึกทุกครั้งที่ขายออก — ราคาดึงจากสินค้าอัตโนมัติ</div></div>
+  <div class="card">
+    <div class="card-title">บันทึกรายการใหม่</div>
+    <div class="form-row cols-4">
+      <div class="field"><label>สินค้า *</label><select id="s-prod" onchange="onProdSelect()"><option value="">— เลือกสินค้า —</option></select></div>
+      <div class="field"><label>ผู้ขาย</label><select id="s-seller"><option value="">— เลือก —</option></select></div>
+      <div class="field"><label>จำนวน</label><input id="s-qty" type="number" value="1" min="1" oninput="updatePreview()"></div>
+      <div class="field"><label>วันที่</label><input id="s-date" type="date"></div>
+    </div>
+    <div class="form-row cols-3">
+      <div class="field">
+        <label>ราคาขายจริง — เลือกสกุลเงิน</label>
+        <div style="display:flex;gap:6px">
+          <select id="s-currency" onchange="updatePreview()" style="width:80px;flex-shrink:0">
+            <option value="usd">$</option>
+            <option value="thb">฿</option>
+          </select>
+          <input id="s-price" type="number" placeholder="0.00" step="0.01" oninput="updatePreview()" style="flex:1">
         </div>
-        <div class="field"><label>หมายเหตุ</label><input id="m-note" placeholder="บันทึกเพิ่มเติม (ไม่บังคับ)"></div>
       </div>
-      <button class="btn btn-primary" onclick="addMap()">+ เพิ่มแมพ</button>
+      <div class="field"><label>ต้นทุนจริง (฿)</label><input id="s-cost" type="number" placeholder="0" oninput="updatePreview()"></div>
+      <div class="field"><label>ค่าธรรมเนียม (%)</label><input id="s-fee-pct" type="number" placeholder="0" step="0.01" oninput="updatePreview()"></div>
     </div>
-    <div class="card">
-      <div class="card-title"><span>รายการแมพทั้งหมด</span><span class="badge badge-blue" id="m-count">0 แมพ</span></div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>#</th><th>ชื่อแมพ</th><th>หมวดหมู่</th><th>สินค้า</th><th>หมายเหตุ</th><th></th></tr></thead>
-          <tbody id="m-tbody"><tr><td colspan="6"><div class="empty"><div class="empty-icon">🗺️</div><div class="empty-text">ยังไม่มีแมพ</div></div></td></tr></tbody>
-        </table>
-      </div>
+    <div class="form-row cols-2">
+      <div class="field"><label>ผู้ซื้อ (ไม่บังคับ)</label><input id="s-buyer" placeholder="Roblox username"></div>
+      <div class="field"><label>หมายเหตุ</label><input id="s-note" placeholder="บันทึกเพิ่มเติม"></div>
     </div>
+    <div class="preview-box" id="s-preview">
+      <div class="preview-row"><span style="color:var(--muted)">ราคาขายรวม (฿)</span><span class="mono" id="pv-revenue">฿0</span></div>
+      <div class="preview-row"><span style="color:var(--muted)">หัก ต้นทุน</span><span class="num-neg" id="pv-cost">-฿0</span></div>
+      <div class="preview-row"><span style="color:var(--muted)">หัก ค่าธรรมเนียม</span><span class="num-neg" id="pv-fee">-฿0</span></div>
+      <div class="preview-row total"><span>กำไรสุทธิ (฿)</span><span id="pv-profit" class="num-pos">฿0</span></div>
+    </div>
+    <button class="btn btn-primary" onclick="addSale()">💾 บันทึกการขาย</button>
   </div>
+  <div class="card">
+    <div class="card-title"><span>ประวัติการขาย</span><span class="badge badge-green" id="s-count">0</span></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>วันที่</th><th>สินค้า</th><th>แมพ</th><th>ผู้ขาย</th><th>จำนวน</th><th>ราคาขาย</th><th>ต้นทุน (฿)</th><th>ค่าธรรมเนียม</th><th>กำไร (฿)</th><th>ผู้ซื้อ</th><th></th></tr></thead>
+      <tbody id="s-tbody"><tr><td colspan="12"><div class="empty"><div class="empty-icon">📝</div><div class="empty-text">ยังไม่มีรายการ</div></div></td></tr></tbody>
+    </table></div>
+  </div>
+</div>
 
-  <!-- PRODUCTS -->
-  <div class="page" id="page-products">
-    <div class="page-header">
-      <div class="page-title">สินค้า</div>
-      <div class="page-sub">สินค้าที่คุณขายในแต่ละแมพ</div>
+<!-- ── SUMMARY ── -->
+<div class="page" id="page-summary">
+  <div class="page-header"><div class="page-title">สรุปกำไร</div></div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">สรุปรวมทั้งหมด</div>
+      <div id="sum-overall"><div class="empty"><div class="empty-icon">📊</div><div class="empty-text">ยังไม่มีข้อมูล</div></div></div>
     </div>
     <div class="card">
-      <div class="card-title">เพิ่มสินค้าใหม่</div>
-      <div class="form-row cols-3">
-        <div class="field"><label>ชื่อสินค้า *</label><input id="p-name" placeholder="เช่น Sword Level 10, Rare Pet..."></div>
-        <div class="field"><label>แมพ</label><select id="p-map"><option value="">— ไม่ระบุ —</option></select></div>
-        <div class="field"><label>ประเภทสินค้า</label>
-          <select id="p-type"><option>Item / ไอเทม</option><option>Pet / เพ็ต</option><option>Currency / เงินเกม</option><option>Account / บัญชี</option><option>Gamepass</option><option>บริการ</option></select>
-        </div>
+      <div class="card-title">🧮 คำนวณด่วน</div>
+      <div id="calc-rate-note" style="font-size:11.5px;color:var(--muted);margin-bottom:10px"></div>
+      <div class="form-row" style="grid-template-columns:1fr">
+        <div class="field"><label>ราคาขาย ($)</label><input id="c-price" type="number" placeholder="0.00" step="0.01" oninput="calcQuick()"></div>
+        <div class="field"><label>ต้นทุน (฿)</label><input id="c-cost" type="number" placeholder="0" oninput="calcQuick()"></div>
+        <div class="field"><label>ค่าธรรมเนียม (%)</label><input id="c-fee" type="number" placeholder="0" step="0.01" oninput="calcQuick()"></div>
+        <div class="field"><label>จำนวน</label><input id="c-qty" type="number" value="1" min="1" oninput="calcQuick()"></div>
       </div>
-      <div class="form-row cols-3">
-        <div class="field"><label>ต้นทุน (฿)</label><input id="p-cost" type="number" placeholder="0" min="0"></div>
-        <div class="field"><label>ราคาขายปกติ (฿)</label><input id="p-price" type="number" placeholder="0" min="0"></div>
-        <div class="field"><label>ค่าธรรมเนียมปกติ (฿)</label><input id="p-fee" type="number" placeholder="0" min="0" value="0"></div>
-      </div>
-      <div class="form-row cols-2">
-        <div class="field"><label>หมายเหตุ</label><input id="p-note" placeholder="บันทึกเพิ่มเติม (ไม่บังคับ)"></div>
-      </div>
-      <button class="btn btn-primary" onclick="addProduct()">+ เพิ่มสินค้า</button>
-    </div>
-    <div class="card">
-      <div class="card-title"><span>รายการสินค้าทั้งหมด</span><span class="badge badge-blue" id="p-count">0 สินค้า</span></div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>#</th><th>ชื่อสินค้า</th><th>แมพ</th><th>ประเภท</th><th>ต้นทุน</th><th>ราคาขาย</th><th>ค่าธรรมเนียม</th><th>กำไร/ชิ้น</th><th></th></tr></thead>
-          <tbody id="p-tbody"><tr><td colspan="9"><div class="empty"><div class="empty-icon">📦</div><div class="empty-text">ยังไม่มีสินค้า</div></div></td></tr></tbody>
-        </table>
-      </div>
+      <hr>
+      <div class="sum-row"><span style="color:var(--muted)">ราคาขายรวม ($)</span><span class="num-neutral" id="c-rev-usd">$0</span></div>
+      <div class="sum-row"><span style="color:var(--muted)">ราคาขายรวม (฿)</span><span class="num-neutral" id="c-rev-thb">฿0</span></div>
+      <div class="sum-row"><span style="color:var(--muted)">หัก ต้นทุน (฿)</span><span class="num-neg" id="c-total-cost">-฿0</span></div>
+      <div class="sum-row"><span style="color:var(--muted)">หัก ค่าธรรมเนียม ($)</span><span class="num-neg" id="c-total-fee-usd">-$0</span></div>
+      <div class="sum-row"><span style="color:var(--muted)">หัก ค่าธรรมเนียม (฿)</span><span class="num-neg" id="c-total-fee-thb">-฿0</span></div>
+      <div class="sum-row total"><span>กำไรสุทธิ (฿)</span><span id="c-profit" class="num-pos">฿0</span></div>
+      <div class="sum-row"><span style="color:var(--muted)">% กำไร</span><span class="mono" id="c-margin" style="color:var(--accent)">0%</span></div>
     </div>
   </div>
+  <div class="card">
+    <div class="card-title">สรุปแยกตามแมพ</div>
+    <div id="sum-bymap"><div class="empty"><div class="empty-icon">🗺️</div><div class="empty-text">ยังไม่มีข้อมูล</div></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">สรุปแยกตามผู้ขาย</div>
+    <div id="sum-byseller"><div class="empty"><div class="empty-icon">👥</div><div class="empty-text">ยังไม่มีข้อมูล</div></div></div>
+  </div>
+</div>
 
-  <!-- SALES -->
-  <div class="page" id="page-sales">
-    <div class="page-header">
-      <div class="page-title">บันทึกการขาย</div>
-      <div class="page-sub">บันทึกทุกครั้งที่ขายสินค้าออก</div>
+<!-- ── WALLET ── -->
+<div class="page" id="page-wallet">
+  <div class="page-header"><div class="page-title">👛 ยอดเงินในเว็บ</div></div>
+  <div class="three-col">
+    <div class="stat"><div class="stat-label">ยอดเงินปัจจุบัน</div><div class="stat-num blue" id="w-balance">฿0.00</div></div>
+    <div class="stat"><div class="stat-label">ค่าธรรมเนียมถอน</div><div class="stat-num red" id="w-fee-display">฿0.00</div></div>
+    <div class="stat"><div class="stat-label">ได้รับจริงหลังถอน</div><div class="stat-num green" id="w-net-display">฿0.00</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">ยอดเงินคงเหลือ</div>
+    <div class="wallet-big" id="w-balance-big">฿0.00</div>
+    <div style="font-size:11.5px;color:var(--muted);margin-bottom:14px">ยอดเงินที่มีในเว็บขณะนี้</div>
+    <hr>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:500">เพิ่ม / ปรับยอดเงิน</div>
+    <div class="form-row cols-3">
+      <div class="field"><label>จำนวนเงิน (฿)</label><input id="w-amount" type="number" placeholder="0.00" step="0.01" min="0"></div>
+      <div class="field" style="grid-column:span 2"><label>หมายเหตุ</label><input id="w-note" placeholder="เช่น รับเงินจากลูกค้า, แก้ไขยอด..."></div>
     </div>
-    <div class="card">
-      <div class="card-title">บันทึกรายการใหม่</div>
-      <div class="form-row cols-3">
-        <div class="field"><label>สินค้า *</label><select id="s-prod" onchange="onProdSelect()"><option value="">— เลือกสินค้า —</option></select></div>
-        <div class="field"><label>จำนวนที่ขาย</label><input id="s-qty" type="number" value="1" min="1" oninput="updatePreview()"></div>
-        <div class="field"><label>วันที่ขาย</label><input id="s-date" type="date"></div>
-      </div>
-      <div class="form-row cols-3">
-        <div class="field"><label>ราคาขายจริง (฿)</label><input id="s-price" type="number" placeholder="0" oninput="updatePreview()"></div>
-        <div class="field"><label>ต้นทุนจริง (฿)</label><input id="s-cost" type="number" placeholder="0" oninput="updatePreview()"></div>
-        <div class="field"><label>ค่าธรรมเนียม (฿)</label><input id="s-fee" type="number" placeholder="0" oninput="updatePreview()"></div>
-      </div>
-      <div class="form-row cols-2">
-        <div class="field"><label>ผู้ซื้อ (ไม่บังคับ)</label><input id="s-buyer" placeholder="Roblox username"></div>
-        <div class="field"><label>หมายเหตุ</label><input id="s-note" placeholder="บันทึกเพิ่มเติม"></div>
-      </div>
-      <div class="preview-box" id="s-preview">
-        <div class="preview-row"><span style="color:var(--muted)">ราคาขายรวม</span><span class="mono" id="pv-revenue">฿0</span></div>
-        <div class="preview-row"><span style="color:var(--muted)">หัก ต้นทุน</span><span class="num-neg" id="pv-cost">- ฿0</span></div>
-        <div class="preview-row"><span style="color:var(--muted)">หัก ค่าธรรมเนียม</span><span class="num-neg" id="pv-fee">- ฿0</span></div>
-        <div class="preview-row total"><span>กำไรสุทธิ</span><span id="pv-profit" class="num-pos">฿0</span></div>
-      </div>
-      <button class="btn btn-primary" onclick="addSale()">💾 บันทึกการขาย</button>
-    </div>
-    <div class="card">
-      <div class="card-title"><span>ประวัติการขายทั้งหมด</span><span class="badge badge-green" id="s-count">0 รายการ</span></div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>#</th><th>วันที่</th><th>สินค้า</th><th>แมพ</th><th>จำนวน</th><th>ราคาขาย</th><th>ต้นทุน</th><th>ค่าธรรมเนียม</th><th>กำไรสุทธิ</th><th>ผู้ซื้อ</th><th></th></tr></thead>
-          <tbody id="s-tbody"><tr><td colspan="11"><div class="empty"><div class="empty-icon">📝</div><div class="empty-text">ยังไม่มีรายการ</div></div></td></tr></tbody>
-        </table>
-      </div>
+    <div class="btn-row">
+      <button class="btn btn-primary btn-sm" onclick="addBalance()">+ เพิ่มเงิน</button>
+      <button class="btn btn-danger btn-sm" onclick="subtractBalance()">− หักเงิน</button>
     </div>
   </div>
-
-  <!-- SUMMARY -->
-  <div class="page" id="page-summary">
-    <div class="page-header">
-      <div class="page-title">สรุปกำไร</div>
-      <div class="page-sub">ภาพรวมรายได้ ต้นทุน และกำไรทั้งหมด</div>
+  <div class="card">
+    <div class="card-title">คำนวณการถอนเงิน</div>
+    <div class="info-box">💸 ค่าธรรมเนียมถอน: <strong>3.99%</strong> + <strong>฿119.99</strong></div>
+    <div class="form-row cols-2">
+      <div class="field"><label>ต้องการถอน (฿)</label><input id="w-withdraw-input" type="number" placeholder="0" step="0.01" oninput="calcWithdraw()"></div>
     </div>
-    <div class="two-col">
-      <div class="card">
-        <div class="card-title">สรุปรวมทั้งหมด</div>
-        <div id="sum-overall"><div class="empty"><div class="empty-icon">📊</div><div class="empty-text">ยังไม่มีข้อมูล</div></div></div>
-      </div>
-      <div class="card">
-        <div class="card-title">คำนวณด่วน</div>
-        <div class="form-row" style="grid-template-columns:1fr;">
-          <div class="field"><label>ราคาขาย (฿)</label><input id="c-price" type="number" placeholder="0" oninput="calcQuick()"></div>
-          <div class="field"><label>ต้นทุน (฿)</label><input id="c-cost" type="number" placeholder="0" oninput="calcQuick()"></div>
-          <div class="field"><label>ค่าธรรมเนียม (฿)</label><input id="c-fee" type="number" placeholder="0" oninput="calcQuick()"></div>
-          <div class="field"><label>จำนวน</label><input id="c-qty" type="number" value="1" min="1" oninput="calcQuick()"></div>
-        </div>
-        <hr>
-        <div class="summary-row"><span style="color:var(--muted)">ราคาขายรวม</span><span class="num-neutral" id="c-revenue">฿0</span></div>
-        <div class="summary-row"><span style="color:var(--muted)">หัก ต้นทุน</span><span class="num-neg" id="c-total-cost">- ฿0</span></div>
-        <div class="summary-row"><span style="color:var(--muted)">หัก ค่าธรรมเนียม</span><span class="num-neg" id="c-total-fee">- ฿0</span></div>
-        <div class="summary-row total"><span>กำไรสุทธิ</span><span id="c-profit" class="num-pos">฿0</span></div>
-        <div class="summary-row"><span style="color:var(--muted)">% กำไร</span><span class="mono" id="c-margin" style="color:var(--accent)">0%</span></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">สรุปแยกตามแมพ</div>
-      <div id="sum-bymap"><div class="empty"><div class="empty-icon">🗺️</div><div class="empty-text">ยังไม่มีข้อมูล</div></div></div>
+    <div id="w-withdraw-preview" style="display:none">
+      <div class="sum-row"><span style="color:var(--muted)">ยอดที่ถอน</span><span class="num-neutral" id="wp-amount">฿0</span></div>
+      <div class="sum-row"><span style="color:var(--muted)">ค่าธรรมเนียม 3.99%</span><span class="num-neg" id="wp-pct">-฿0</span></div>
+      <div class="sum-row"><span style="color:var(--muted)">ค่าธรรมเนียมคงที่</span><span class="num-neg">-฿119.99</span></div>
+      <div class="sum-row total"><span>ได้รับเงินจริง</span><span id="wp-net" class="num-pos">฿0</span></div>
     </div>
   </div>
+  <div class="card">
+    <div class="card-title"><span>ประวัติการปรับยอด</span><span class="badge badge-blue" id="w-history-count">0</span></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>วันที่</th><th>ประเภท</th><th>จำนวน</th><th>หมายเหตุ</th><th>ยอดหลังปรับ</th><th></th></tr></thead>
+      <tbody id="w-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
 
 </main>
 </div>
 
-<!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, push, remove, onValue, update, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyD12NfU0-ZDNoaiuvdCPNhtL7UaWtjeBeQ",
-  authDomain: "flutter-ai-playground-f5fd4.firebaseapp.com",
-  databaseURL: "https://flutter-ai-playground-f5fd4-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "flutter-ai-playground-f5fd4",
-  storageBucket: "flutter-ai-playground-f5fd4.firebasestorage.app",
-  messagingSenderId: "994360853022",
-  appId: "1:994360853022:web:95dfcbb22db7aab2fca40f"
+const cfg = {
+  apiKey:"AIzaSyD12NfU0-ZDNoaiuvdCPNhtL7UaWtjeBeQ",
+  authDomain:"flutter-ai-playground-f5fd4.firebaseapp.com",
+  databaseURL:"https://flutter-ai-playground-f5fd4-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"flutter-ai-playground-f5fd4",
+  storageBucket:"flutter-ai-playground-f5fd4.firebasestorage.app",
+  messagingSenderId:"994360853022",
+  appId:"1:994360853022:web:95dfcbb22db7aab2fca40f"
 };
-
-const app = initializeApp(firebaseConfig);
-const db  = getDatabase(app);
+const app=initializeApp(cfg), db=getDatabase(app);
 
 // ── STATE ──
-let maps = [], products = [], sales = [];
-let mapsReady = false, productsReady = false, salesReady = false;
+let maps=[],products=[],sales=[],walletHistory=[],sellers={s1:'ผู้ขาย 1',s2:'ผู้ขาย 2'};
+let usdRate=0;
+let readyFlags={maps:false,prods:false,sales:false,wallet:false,sellers:false};
+let salesChart=null, chartPeriod='day';
 
-function checkAllReady() {
-  if (mapsReady && productsReady && salesReady) {
-    document.getElementById('loading').style.display = 'none';
+function checkReady(){
+  if(Object.values(readyFlags).every(Boolean)){
+    document.getElementById('loading').style.display='none';
     setSyncStatus('online');
+    fetchRate();
   }
 }
 
+// ── THEME ──
+window.toggleTheme=function(){
+  const html=document.documentElement;
+  const isDark=html.getAttribute('data-theme')==='dark';
+  const newTheme=isDark?'light':'dark';
+  html.setAttribute('data-theme',newTheme);
+  document.getElementById('theme-btn').textContent=isDark?'🌙 มืด':'☀️ สว่าง';
+  localStorage.setItem('rbl_theme',newTheme);
+  setTimeout(()=>renderChart(),100);
+};
+const st=localStorage.getItem('rbl_theme')||'dark';
+document.documentElement.setAttribute('data-theme',st);
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('theme-btn').textContent=st==='dark'?'☀️ สว่าง':'🌙 มืด';
+});
+
 // ── SYNC STATUS ──
-function setSyncStatus(state) {
-  const dot = document.getElementById('sync-dot');
-  const lbl = document.getElementById('sync-label');
-  dot.className = 'sync-dot ' + state;
-  lbl.textContent = state === 'online' ? 'เชื่อมต่อแล้ว' : state === 'syncing' ? 'กำลังบันทึก...' : 'ไม่สามารถเชื่อมต่อได้';
+function setSyncStatus(s){
+  const d=document.getElementById('sync-dot'),l=document.getElementById('sync-label');
+  d.className='sync-dot '+s;
+  l.textContent=s==='online'?'เชื่อมต่อแล้ว':s==='syncing'?'กำลังบันทึก...':'เชื่อมต่อไม่ได้';
 }
 
+// ── EXCHANGE RATE ──
+window.fetchRate=async function(){
+  try{
+    const r=await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+    const d=await r.json();
+    usdRate=d.rates.THB||0;
+    document.getElementById('rate-display').textContent=`1$ = ฿${usdRate.toFixed(2)}`;
+    document.getElementById('rate-time').textContent='อัพเดต '+new Date().toLocaleTimeString('th-TH');
+    document.getElementById('calc-rate-note').textContent=`💱 อัตราปัจจุบัน: 1$ = ฿${usdRate.toFixed(2)}`;
+    renderProducts(); renderDashboard();
+    if(document.getElementById('page-summary').classList.contains('active')) renderSummary();
+  }catch(e){
+    document.getElementById('rate-display').textContent='โหลดไม่ได้ — ใส่เองได้';
+    // fallback manual rate input
+    document.getElementById('rate-bar').innerHTML+=` <input id="manual-rate" type="number" placeholder="ใส่อัตรา เช่น 34.5" style="width:120px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px" oninput="setManualRate(this.value)">`;
+  }
+};
+window.setManualRate=function(v){usdRate=parseFloat(v)||0;renderProducts();renderDashboard();};
+
 // ── HELPERS ──
-window.baht = n => '฿' + Number(n || 0).toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-window.mapName = id => { const m = maps.find(x => x.id === id); return m ? m.name : '—'; };
+const fmtUSD=n=>'$'+Number(n||0).toFixed(2);
+const fmtTHB=n=>'฿'+Number(n||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
+window.mapName=id=>{const m=maps.find(x=>x.id===id);return m?m.name:'—';};
+function toTHB(amount,currency){return currency==='usd'?amount*usdRate:amount;}
 
-window.fillMapSelect = function(elId) {
-  const el = document.getElementById(elId);
-  const cur = el.value;
-  el.innerHTML = '<option value="">— ไม่ระบุ —</option>' + maps.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-  el.value = cur;
+window.fillMapSelect=function(elId){
+  const el=document.getElementById(elId),cur=el.value;
+  el.innerHTML='<option value="">— ไม่ระบุ —</option>'+maps.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  el.value=cur;
 };
-
-window.fillProdSelect = function() {
-  const el = document.getElementById('s-prod');
-  el.innerHTML = '<option value="">— เลือกสินค้า —</option>' +
-    products.map(p => `<option value="${p.id}">${p.name}${p.mapId ? ' (' + mapName(p.mapId) + ')' : ''}</option>`).join('');
+window.fillProdSelect=function(){
+  const el=document.getElementById('s-prod');
+  el.innerHTML='<option value="">— เลือกสินค้า —</option>'+
+    products.map(p=>`<option value="${p.id}">${p.name}${p.mapId?' ('+mapName(p.mapId)+')':''}</option>`).join('');
 };
+function fillSellerSelect(){
+  const el=document.getElementById('s-seller');
+  el.innerHTML='<option value="">— เลือก —</option>'+
+    [sellers.s1,sellers.s2].filter(Boolean).map(s=>`<option value="${s}">${s}</option>`).join('');
+}
 
 // ── REALTIME LISTENERS ──
-onValue(ref(db, 'roblox/maps'), snap => {
-  maps = [];
-  snap.forEach(c => maps.push({ ...c.val(), _key: c.key }));
-  mapsReady = true;
-  checkAllReady();
-  renderMaps(); renderProducts(); renderSales(); renderDashboard();
-  if (document.getElementById('page-summary').classList.contains('active')) renderSummary();
-}, err => { setSyncStatus('error'); console.error(err); });
+onValue(ref(db,'roblox/maps'),snap=>{
+  maps=[];snap.forEach(c=>maps.push({...c.val(),_key:c.key}));
+  readyFlags.maps=true;checkReady();
+  renderMaps();renderProducts();renderDashboard();
+  if(document.getElementById('page-summary').classList.contains('active'))renderSummary();
+},()=>setSyncStatus('error'));
 
-onValue(ref(db, 'roblox/products'), snap => {
-  products = [];
-  snap.forEach(c => products.push({ ...c.val(), _key: c.key }));
-  productsReady = true;
-  checkAllReady();
-  renderProducts(); renderSales(); renderDashboard();
-  if (document.getElementById('page-summary').classList.contains('active')) renderSummary();
-}, err => { setSyncStatus('error'); });
+onValue(ref(db,'roblox/products'),snap=>{
+  products=[];snap.forEach(c=>products.push({...c.val(),_key:c.key}));
+  readyFlags.prods=true;checkReady();
+  renderProducts();renderSales();renderDashboard();
+  if(document.getElementById('page-summary').classList.contains('active'))renderSummary();
+},()=>setSyncStatus('error'));
 
-onValue(ref(db, 'roblox/sales'), snap => {
-  sales = [];
-  snap.forEach(c => sales.push({ ...c.val(), _key: c.key }));
-  salesReady = true;
-  checkAllReady();
-  renderSales(); renderDashboard();
-  if (document.getElementById('page-summary').classList.contains('active')) renderSummary();
-}, err => { setSyncStatus('error'); });
+onValue(ref(db,'roblox/sales'),snap=>{
+  sales=[];snap.forEach(c=>sales.push({...c.val(),_key:c.key}));
+  readyFlags.sales=true;checkReady();
+  renderSales();renderDashboard();renderChart();
+  if(document.getElementById('page-summary').classList.contains('active'))renderSummary();
+},()=>setSyncStatus('error'));
+
+onValue(ref(db,'roblox/wallet'),snap=>{
+  walletHistory=[];snap.forEach(c=>walletHistory.push({...c.val(),_key:c.key}));
+  readyFlags.wallet=true;checkReady();
+  renderWallet();
+},()=>setSyncStatus('error'));
+
+onValue(ref(db,'roblox/sellers'),snap=>{
+  if(snap.exists()) sellers=snap.val();
+  readyFlags.sellers=true;checkReady();
+  document.getElementById('seller1-name').value=sellers.s1||'';
+  document.getElementById('seller2-name').value=sellers.s2||'';
+  fillSellerSelect();
+},()=>{readyFlags.sellers=true;checkReady();});
+
+// ── SELLERS ──
+window.saveSellers=async function(){
+  sellers.s1=document.getElementById('seller1-name').value.trim()||'ผู้ขาย 1';
+  sellers.s2=document.getElementById('seller2-name').value.trim()||'ผู้ขาย 2';
+  setSyncStatus('syncing');
+  await set(ref(db,'roblox/sellers'),sellers);
+  setSyncStatus('online');
+  fillSellerSelect();
+  document.getElementById('seller-modal').style.display='none';
+};
 
 // ── MAPS ──
-window.addMap = async function() {
-  const name = document.getElementById('m-name').value.trim();
-  if (!name) return alert('กรุณากรอกชื่อแมพ');
+window.addMap=async function(){
+  const name=document.getElementById('m-name').value.trim();
+  if(!name)return alert('กรุณากรอกชื่อแมพ');
   setSyncStatus('syncing');
-  await push(ref(db, 'roblox/maps'), {
-    id: Date.now(), name,
-    cat: document.getElementById('m-cat').value,
-    note: document.getElementById('m-note').value.trim()
-  });
+  await push(ref(db,'roblox/maps'),{id:Date.now(),name,cat:document.getElementById('m-cat').value,note:document.getElementById('m-note').value.trim()});
   setSyncStatus('online');
-  document.getElementById('m-name').value = '';
-  document.getElementById('m-note').value = '';
+  document.getElementById('m-name').value='';document.getElementById('m-note').value='';
 };
+window.delMap=async function(key){if(!confirm('ลบแมพนี้?'))return;setSyncStatus('syncing');await remove(ref(db,'roblox/maps/'+key));setSyncStatus('online');};
 
-window.delMap = async function(key) {
-  if (!confirm('ลบแมพนี้?')) return;
-  setSyncStatus('syncing');
-  await remove(ref(db, 'roblox/maps/' + key));
-  setSyncStatus('online');
-};
-
-window.renderMaps = function() {
-  const tb = document.getElementById('m-tbody');
-  document.getElementById('m-count').textContent = maps.length + ' แมพ';
-  if (!maps.length) { tb.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">🗺️</div><div class="empty-text">ยังไม่มีแมพ</div></div></td></tr>'; return; }
-  tb.innerHTML = maps.map((m, i) => `
-    <tr>
-      <td style="color:var(--muted)">${i+1}</td>
-      <td style="font-weight:500">${m.name}</td>
-      <td><span class="badge badge-blue">${m.cat}</span></td>
-      <td>${products.filter(p => p.mapId === m.id).length} สินค้า</td>
-      <td style="color:var(--muted)">${m.note || '—'}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="delMap('${m._key}')">ลบ</button></td>
-    </tr>`).join('');
+window.renderMaps=function(){
+  const tb=document.getElementById('m-tbody');
+  document.getElementById('m-count').textContent=maps.length;
+  if(!maps.length){tb.innerHTML='<tr><td colspan="6"><div class="empty"><div class="empty-icon">🗺️</div><div class="empty-text">ยังไม่มีแมพ</div></div></td></tr>';return;}
+  tb.innerHTML=maps.map((m,i)=>`<tr>
+    <td style="color:var(--muted)">${i+1}</td>
+    <td style="font-weight:500">${m.name}</td>
+    <td><span class="badge badge-blue">${m.cat}</span></td>
+    <td>${products.filter(p=>p.mapId===m.id).length}</td>
+    <td style="color:var(--muted)">${m.note||'—'}</td>
+    <td><button class="btn btn-danger btn-sm" onclick="delMap('${m._key}')">ลบ</button></td>
+  </tr>`).join('');
 };
 
 // ── PRODUCTS ──
-window.addProduct = async function() {
-  const name = document.getElementById('p-name').value.trim();
-  if (!name) return alert('กรุณากรอกชื่อสินค้า');
+window.addProduct=async function(){
+  const name=document.getElementById('p-name').value.trim();
+  if(!name)return alert('กรุณากรอกชื่อสินค้า');
   setSyncStatus('syncing');
-  await push(ref(db, 'roblox/products'), {
-    id: Date.now(), name,
-    mapId: parseInt(document.getElementById('p-map').value) || null,
-    type: document.getElementById('p-type').value,
-    cost:  parseFloat(document.getElementById('p-cost').value)  || 0,
-    price: parseFloat(document.getElementById('p-price').value) || 0,
-    fee:   parseFloat(document.getElementById('p-fee').value)   || 0,
-    note:  document.getElementById('p-note').value.trim()
+  await push(ref(db,'roblox/products'),{
+    id:Date.now(),name,
+    mapId:parseInt(document.getElementById('p-map').value)||null,
+    type:document.getElementById('p-type').value,
+    cost:parseFloat(document.getElementById('p-cost').value)||0,
+    price:parseFloat(document.getElementById('p-price').value)||0,
+    feePct:parseFloat(document.getElementById('p-fee').value)||0,
+    note:document.getElementById('p-note').value.trim()
   });
   setSyncStatus('online');
-  ['p-name','p-cost','p-price','p-note'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('p-fee').value = '0';
+  ['p-name','p-cost','p-price','p-note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('p-fee').value='0';
 };
+window.delProduct=async function(key){if(!confirm('ลบสินค้านี้?'))return;setSyncStatus('syncing');await remove(ref(db,'roblox/products/'+key));setSyncStatus('online');};
 
-window.delProduct = async function(key) {
-  if (!confirm('ลบสินค้านี้?')) return;
+window.openEditModal=function(key){
+  const p=products.find(x=>x._key===key);if(!p)return;
+  document.getElementById('edit-key').value=key;
+  document.getElementById('edit-name').value=p.name;
+  document.getElementById('edit-cost').value=p.cost;
+  document.getElementById('edit-price').value=p.price;
+  document.getElementById('edit-fee').value=p.feePct;
+  document.getElementById('edit-type').value=p.type;
+  document.getElementById('edit-note').value=p.note||'';
+  fillMapSelect('edit-map');
+  document.getElementById('edit-map').value=p.mapId||'';
+  document.getElementById('edit-modal').style.display='flex';
+};
+window.closeEditModal=function(){document.getElementById('edit-modal').style.display='none';};
+window.saveEditProduct=async function(){
+  const key=document.getElementById('edit-key').value;
   setSyncStatus('syncing');
-  await remove(ref(db, 'roblox/products/' + key));
+  await update(ref(db,'roblox/products/'+key),{
+    name:document.getElementById('edit-name').value.trim(),
+    mapId:parseInt(document.getElementById('edit-map').value)||null,
+    type:document.getElementById('edit-type').value,
+    cost:parseFloat(document.getElementById('edit-cost').value)||0,
+    price:parseFloat(document.getElementById('edit-price').value)||0,
+    feePct:parseFloat(document.getElementById('edit-fee').value)||0,
+    note:document.getElementById('edit-note').value.trim()
+  });
   setSyncStatus('online');
+  closeEditModal();
 };
 
-window.renderProducts = function() {
-  const tb = document.getElementById('p-tbody');
-  document.getElementById('p-count').textContent = products.length + ' สินค้า';
+window.renderProducts=function(){
+  const tb=document.getElementById('p-tbody');
+  document.getElementById('p-count').textContent=products.length;
   fillMapSelect('p-map');
-  if (!products.length) { tb.innerHTML = '<tr><td colspan="9"><div class="empty"><div class="empty-icon">📦</div><div class="empty-text">ยังไม่มีสินค้า</div></div></td></tr>'; return; }
-  tb.innerHTML = products.map((p, i) => {
-    const net = p.price - p.cost - p.fee;
-    return `<tr>
+  if(!products.length){tb.innerHTML='<tr><td colspan="9"><div class="empty"><div class="empty-icon">📦</div><div class="empty-text">ยังไม่มีสินค้า</div></div></td></tr>';return;}
+  tb.innerHTML=products.map((p,i)=>{
+    const feeAmt=p.price*(p.feePct/100);
+    const netUSD=p.price-feeAmt;
+    const netTHB=netUSD*usdRate-p.cost;
+    return`<tr>
       <td style="color:var(--muted)">${i+1}</td>
       <td style="font-weight:500">${p.name}</td>
       <td><span class="badge badge-gray">${mapName(p.mapId)}</span></td>
-      <td><span class="badge badge-blue">${p.type}</span></td>
-      <td class="num-neg">${baht(p.cost)}</td>
-      <td class="num-neutral">${baht(p.price)}</td>
-      <td class="num-neg">${baht(p.fee)}</td>
-      <td class="${net>=0?'num-pos':'num-neg'}">${baht(net)}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="delProduct('${p._key}')">ลบ</button></td>
+      <td><span class="badge badge-blue" style="font-size:10.5px">${p.type}</span></td>
+      <td class="num-neg">${fmtTHB(p.cost)}</td>
+      <td class="num-neutral">${fmtUSD(p.price)}</td>
+      <td class="num-neg">${p.feePct}% (${fmtUSD(feeAmt)})</td>
+      <td class="${netTHB>=0?'num-pos':'num-neg'}">${usdRate?fmtTHB(netTHB):'—'}</td>
+      <td style="display:flex;gap:5px;flex-wrap:wrap">
+        <button class="btn btn-warning btn-sm" onclick="openEditModal('${p._key}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="delProduct('${p._key}')">ลบ</button>
+      </td>
     </tr>`;
   }).join('');
 };
 
 // ── SALES ──
-window.onProdSelect = function() {
-  const id = parseInt(document.getElementById('s-prod').value);
-  const p = products.find(x => x.id === id);
-  if (p) {
-    document.getElementById('s-price').value = p.price || '';
-    document.getElementById('s-cost').value  = p.cost  || '';
-    document.getElementById('s-fee').value   = p.fee   || '';
+window.onProdSelect=function(){
+  const id=parseInt(document.getElementById('s-prod').value);
+  const p=products.find(x=>x.id===id);
+  if(p){
+    document.getElementById('s-price').value=p.price||'';
+    document.getElementById('s-cost').value=p.cost||'';
+    document.getElementById('s-fee-pct').value=p.feePct||'';
+    document.getElementById('s-currency').value='usd';
   }
   updatePreview();
 };
-
-window.updatePreview = function() {
-  const qty   = parseFloat(document.getElementById('s-qty').value)   || 1;
-  const price = parseFloat(document.getElementById('s-price').value) || 0;
-  const cost  = parseFloat(document.getElementById('s-cost').value)  || 0;
-  const fee   = parseFloat(document.getElementById('s-fee').value)   || 0;
-  if (!price && !cost && !fee) { document.getElementById('s-preview').style.display='none'; return; }
-  const rev = price*qty, tc = cost*qty, tf = fee*qty, net = rev-tc-tf;
-  document.getElementById('pv-revenue').textContent = baht(rev);
-  document.getElementById('pv-cost').textContent    = '- ' + baht(tc);
-  document.getElementById('pv-fee').textContent     = '- ' + baht(tf);
-  document.getElementById('pv-profit').textContent  = baht(net);
-  document.getElementById('pv-profit').className    = net>=0 ? 'num-pos' : 'num-neg';
-  document.getElementById('s-preview').style.display = 'block';
+window.updatePreview=function(){
+  const qty=parseFloat(document.getElementById('s-qty').value)||1;
+  const priceRaw=parseFloat(document.getElementById('s-price').value)||0;
+  const currency=document.getElementById('s-currency').value;
+  const cost=parseFloat(document.getElementById('s-cost').value)||0;
+  const feePct=parseFloat(document.getElementById('s-fee-pct').value)||0;
+  if(!priceRaw&&!cost){document.getElementById('s-preview').style.display='none';return;}
+  const revTHB=toTHB(priceRaw,currency)*qty;
+  const tc=cost*qty;
+  const tfTHB=toTHB(priceRaw*(feePct/100),currency)*qty;
+  const net=revTHB-tc-tfTHB;
+  document.getElementById('pv-revenue').textContent=fmtTHB(revTHB);
+  document.getElementById('pv-cost').textContent='-'+fmtTHB(tc);
+  document.getElementById('pv-fee').textContent=`-${fmtTHB(tfTHB)} (${feePct}%)`;
+  document.getElementById('pv-profit').textContent=fmtTHB(net);
+  document.getElementById('pv-profit').className=net>=0?'num-pos':'num-neg';
+  document.getElementById('s-preview').style.display='block';
 };
-
-window.addSale = async function() {
-  const prodId = parseInt(document.getElementById('s-prod').value);
-  if (!prodId) return alert('กรุณาเลือกสินค้า');
-  const prod  = products.find(p => p.id === prodId);
-  const qty   = parseFloat(document.getElementById('s-qty').value)   || 1;
-  const price = parseFloat(document.getElementById('s-price').value) || 0;
-  const cost  = parseFloat(document.getElementById('s-cost').value)  || 0;
-  const fee   = parseFloat(document.getElementById('s-fee').value)   || 0;
-  const rev = price*qty, tc = cost*qty, tf = fee*qty, net = rev-tc-tf;
+window.addSale=async function(){
+  const prodId=parseInt(document.getElementById('s-prod').value);
+  if(!prodId)return alert('กรุณาเลือกสินค้า');
+  const prod=products.find(p=>p.id===prodId);
+  const qty=parseFloat(document.getElementById('s-qty').value)||1;
+  const priceRaw=parseFloat(document.getElementById('s-price').value)||0;
+  const currency=document.getElementById('s-currency').value;
+  const cost=parseFloat(document.getElementById('s-cost').value)||0;
+  const feePct=parseFloat(document.getElementById('s-fee-pct').value)||0;
+  const revTHB=toTHB(priceRaw,currency)*qty;
+  const tc=cost*qty;
+  const tfTHB=toTHB(priceRaw*(feePct/100),currency)*qty;
+  const net=revTHB-tc-tfTHB;
   setSyncStatus('syncing');
-  await push(ref(db, 'roblox/sales'), {
-    id: Date.now(),
-    productId: prodId, productName: prod.name,
-    mapId: prod.mapId || null,
-    qty, price, cost, fee,
-    revenue: rev, totalCost: tc, totalFee: tf, net,
-    date:  document.getElementById('s-date').value,
-    buyer: document.getElementById('s-buyer').value.trim(),
-    note:  document.getElementById('s-note').value.trim()
+  await push(ref(db,'roblox/sales'),{
+    id:Date.now(),productId:prodId,productName:prod.name,mapId:prod.mapId||null,
+    qty,priceRaw,currency,cost,feePct,
+    revenue:revTHB,totalCost:tc,totalFee:tfTHB,net,
+    seller:document.getElementById('s-seller').value,
+    buyer:document.getElementById('s-buyer').value.trim(),
+    note:document.getElementById('s-note').value.trim(),
+    date:document.getElementById('s-date').value
   });
   setSyncStatus('online');
-  document.getElementById('s-prod').value  = '';
-  document.getElementById('s-qty').value   = '1';
-  ['s-price','s-cost','s-fee','s-buyer','s-note'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('s-preview').style.display = 'none';
+  document.getElementById('s-prod').value='';document.getElementById('s-qty').value='1';
+  ['s-price','s-cost','s-fee-pct','s-buyer','s-note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('s-preview').style.display='none';
+};
+window.delSale=async function(key){if(!confirm('ลบรายการนี้?'))return;setSyncStatus('syncing');await remove(ref(db,'roblox/sales/'+key));setSyncStatus('online');};
+
+window.renderSales=function(){
+  const tb=document.getElementById('s-tbody');
+  document.getElementById('s-count').textContent=sales.length;
+  fillProdSelect();fillSellerSelect();
+  if(!sales.length){tb.innerHTML='<tr><td colspan="12"><div class="empty"><div class="empty-icon">📝</div><div class="empty-text">ยังไม่มีรายการ</div></div></td></tr>';return;}
+  tb.innerHTML=[...sales].reverse().map((s,i)=>`<tr>
+    <td style="color:var(--muted)">${sales.length-i}</td>
+    <td style="color:var(--muted);white-space:nowrap">${s.date||'—'}</td>
+    <td style="font-weight:500">${s.productName}</td>
+    <td><span class="badge badge-gray">${mapName(s.mapId)}</span></td>
+    <td>${s.seller?`<span class="seller-tag">${s.seller}</span>`:'—'}</td>
+    <td class="mono">${s.qty}</td>
+    <td class="num-neutral">${s.currency==='usd'?fmtUSD(s.priceRaw):fmtTHB(s.priceRaw)}</td>
+    <td class="num-neg">-${fmtTHB(s.totalCost)}</td>
+    <td class="num-neg">-${fmtTHB(s.totalFee)} (${s.feePct||0}%)</td>
+    <td class="${s.net>=0?'num-pos':'num-neg'}">${fmtTHB(s.net)}</td>
+    <td style="color:var(--muted)">${s.buyer||'—'}</td>
+    <td><button class="btn btn-danger btn-sm" onclick="delSale('${s._key}')">ลบ</button></td>
+  </tr>`).join('');
 };
 
-window.delSale = async function(key) {
-  if (!confirm('ลบรายการนี้?')) return;
-  setSyncStatus('syncing');
-  await remove(ref(db, 'roblox/sales/' + key));
-  setSyncStatus('online');
+// ── CHART ──
+window.setChartPeriod=function(p,el){
+  chartPeriod=p;
+  document.querySelectorAll('.chart-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderChart();
 };
-
-window.renderSales = function() {
-  const tb = document.getElementById('s-tbody');
-  document.getElementById('s-count').textContent = sales.length + ' รายการ';
-  fillProdSelect();
-  if (!sales.length) { tb.innerHTML = '<tr><td colspan="11"><div class="empty"><div class="empty-icon">📝</div><div class="empty-text">ยังไม่มีรายการ</div></div></td></tr>'; return; }
-  tb.innerHTML = [...sales].reverse().map((s, i) => `
-    <tr>
-      <td style="color:var(--muted)">${sales.length-i}</td>
-      <td style="color:var(--muted);white-space:nowrap">${s.date||'—'}</td>
-      <td style="font-weight:500">${s.productName}</td>
-      <td><span class="badge badge-gray">${mapName(s.mapId)}</span></td>
-      <td class="mono">${s.qty}</td>
-      <td class="num-neutral">${baht(s.revenue)}</td>
-      <td class="num-neg">- ${baht(s.totalCost)}</td>
-      <td class="num-neg">- ${baht(s.totalFee)}</td>
-      <td class="${s.net>=0?'num-pos':'num-neg'}">${baht(s.net)}</td>
-      <td style="color:var(--muted)">${s.buyer||'—'}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="delSale('${s._key}')">ลบ</button></td>
-    </tr>`).join('');
+window.renderChart=function(){
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  const gridColor=isDark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.07)';
+  const textColor=isDark?'#6b6b80':'#888880';
+  if(!sales.length){
+    if(salesChart){salesChart.destroy();salesChart=null;}
+    return;
+  }
+  // Group by period
+  const groups={};
+  sales.forEach(s=>{
+    if(!s.date)return;
+    let key=s.date;
+    if(chartPeriod==='week'){
+      const d=new Date(s.date),day=d.getDay(),diff=d.getDate()-day+(day===0?-6:1);
+      const mon=new Date(d.setDate(diff));key=mon.toISOString().split('T')[0];
+    } else if(chartPeriod==='month'){key=s.date.slice(0,7);}
+    if(!groups[key])groups[key]={revenue:0,profit:0,count:0};
+    groups[key].revenue+=s.revenue;groups[key].profit+=s.net;groups[key].count++;
+  });
+  const sorted=Object.keys(groups).sort();
+  const labels=sorted.map(k=>{
+    if(chartPeriod==='month'){const[y,m]=k.split('-');return`${m}/${y.slice(2)}`;}
+    const d=new Date(k);return`${d.getDate()}/${d.getMonth()+1}`;
+  });
+  const revData=sorted.map(k=>parseFloat(groups[k].revenue.toFixed(2)));
+  const profData=sorted.map(k=>parseFloat(groups[k].profit.toFixed(2)));
+  const ctx=document.getElementById('sales-chart').getContext('2d');
+  if(salesChart)salesChart.destroy();
+  salesChart=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'ยอดขาย (฿)',data:revData,backgroundColor:'rgba(79,142,247,0.6)',borderColor:'rgba(79,142,247,1)',borderWidth:1,borderRadius:4},
+        {label:'กำไร (฿)',data:profData,backgroundColor:'rgba(34,197,94,0.6)',borderColor:'rgba(34,197,94,1)',borderWidth:1,borderRadius:4}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:textColor,font:{size:11}}},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ฿${ctx.parsed.y.toLocaleString()}`}}},
+      scales:{
+        x:{ticks:{color:textColor,font:{size:11}},grid:{color:gridColor}},
+        y:{ticks:{color:textColor,font:{size:11},callback:v=>'฿'+v.toLocaleString()},grid:{color:gridColor}}
+      }
+    }
+  });
 };
 
 // ── SUMMARY ──
-window.calcQuick = function() {
-  const price = parseFloat(document.getElementById('c-price').value)||0;
-  const cost  = parseFloat(document.getElementById('c-cost').value) ||0;
-  const fee   = parseFloat(document.getElementById('c-fee').value)  ||0;
-  const qty   = parseFloat(document.getElementById('c-qty').value)  ||1;
-  const rev = price*qty, tc = cost*qty, tf = fee*qty, net = rev-tc-tf;
-  const margin = rev>0 ? ((net/rev)*100).toFixed(1) : 0;
-  document.getElementById('c-revenue').textContent    = baht(rev);
-  document.getElementById('c-total-cost').textContent = '- ' + baht(tc);
-  document.getElementById('c-total-fee').textContent  = '- ' + baht(tf);
-  document.getElementById('c-profit').textContent     = baht(net);
-  document.getElementById('c-profit').className       = net>=0 ? 'num-pos' : 'num-neg';
-  document.getElementById('c-margin').textContent     = margin + '%';
+window.calcQuick=function(){
+  const price=parseFloat(document.getElementById('c-price').value)||0;
+  const cost=parseFloat(document.getElementById('c-cost').value)||0;
+  const feePct=parseFloat(document.getElementById('c-fee').value)||0;
+  const qty=parseFloat(document.getElementById('c-qty').value)||1;
+  const revUSD=price*qty;
+  const revTHB=revUSD*usdRate;
+  const tc=cost*qty;
+  const tfUSD=price*(feePct/100)*qty;
+  const tfTHB=tfUSD*usdRate;
+  const net=revTHB-tc-tfTHB;
+  const margin=revTHB>0?((net/revTHB)*100).toFixed(1):0;
+  document.getElementById('c-rev-usd').textContent=fmtUSD(revUSD);
+  document.getElementById('c-rev-thb').textContent=fmtTHB(revTHB);
+  document.getElementById('c-total-cost').textContent='-'+fmtTHB(tc);
+  document.getElementById('c-total-fee-usd').textContent='-'+fmtUSD(tfUSD);
+  document.getElementById('c-total-fee-thb').textContent='-'+fmtTHB(tfTHB);
+  document.getElementById('c-profit').textContent=fmtTHB(net);
+  document.getElementById('c-profit').className=net>=0?'num-pos':'num-neg';
+  document.getElementById('c-margin').textContent=margin+'%';
 };
 
-window.renderSummary = function() {
-  const box = document.getElementById('sum-overall');
-  if (!sales.length) {
-    box.innerHTML = '<div class="empty"><div class="empty-icon">📊</div><div class="empty-text">ยังไม่มีข้อมูล</div></div>';
-    document.getElementById('sum-bymap').innerHTML = '<div class="empty"><div class="empty-icon">🗺️</div><div class="empty-text">ยังไม่มีข้อมูล</div></div>';
+window.renderSummary=function(){
+  const box=document.getElementById('sum-overall');
+  if(!sales.length){
+    box.innerHTML='<div class="empty"><div class="empty-icon">📊</div><div class="empty-text">ยังไม่มีข้อมูล</div></div>';
+    document.getElementById('sum-bymap').innerHTML='<div class="empty"><div class="empty-icon">🗺️</div><div class="empty-text">ยังไม่มีข้อมูล</div></div>';
+    document.getElementById('sum-byseller').innerHTML='<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">ยังไม่มีข้อมูล</div></div>';
     return;
   }
-  const rev = sales.reduce((s,x)=>s+x.revenue,0);
-  const tc  = sales.reduce((s,x)=>s+x.totalCost,0);
-  const tf  = sales.reduce((s,x)=>s+x.totalFee,0);
-  const net = sales.reduce((s,x)=>s+x.net,0);
-  const margin = rev>0 ? ((net/rev)*100).toFixed(1) : 0;
-  box.innerHTML = `
-    <div class="summary-row"><span style="color:var(--muted)">ยอดขายรวม</span><span class="num-neutral">${baht(rev)}</span></div>
-    <div class="summary-row"><span style="color:var(--muted)">หัก ต้นทุนรวม</span><span class="num-neg">- ${baht(tc)}</span></div>
-    <div class="summary-row"><span style="color:var(--muted)">หัก ค่าธรรมเนียมรวม</span><span class="num-neg">- ${baht(tf)}</span></div>
-    <div class="summary-row total"><span>กำไรสุทธิรวม</span><span class="${net>=0?'num-pos':'num-neg'}">${baht(net)}</span></div>
-    <div class="summary-row"><span style="color:var(--muted)">% กำไรเฉลี่ย</span><span class="mono" style="color:var(--accent)">${margin}%</span></div>
-    <div class="summary-row"><span style="color:var(--muted)">จำนวนรายการ</span><span class="mono">${sales.length} รายการ</span></div>`;
-
-  const byMap = {};
-  sales.forEach(s => {
-    const k = s.mapId||0;
-    if (!byMap[k]) byMap[k] = { name:mapName(s.mapId), rev:0,tc:0,tf:0,net:0,count:0 };
-    byMap[k].rev+=s.revenue; byMap[k].tc+=s.totalCost; byMap[k].tf+=s.totalFee; byMap[k].net+=s.net; byMap[k].count++;
-  });
-  document.getElementById('sum-bymap').innerHTML = `
-    <div class="table-wrap"><table>
-      <thead><tr><th>แมพ</th><th>รายการ</th><th>ยอดขาย</th><th>ต้นทุน</th><th>ค่าธรรมเนียม</th><th>กำไรสุทธิ</th><th>% กำไร</th></tr></thead>
-      <tbody>${Object.values(byMap).map(r => {
-        const m = r.rev>0 ? ((r.net/r.rev)*100).toFixed(1) : 0;
-        return `<tr>
-          <td style="font-weight:500">${r.name}</td>
-          <td class="mono">${r.count}</td>
-          <td class="num-neutral">${baht(r.rev)}</td>
-          <td class="num-neg">- ${baht(r.tc)}</td>
-          <td class="num-neg">- ${baht(r.tf)}</td>
-          <td class="${r.net>=0?'num-pos':'num-neg'}">${baht(r.net)}</td>
-          <td class="mono" style="color:var(--accent)">${m}%</td>
-        </tr>`;
-      }).join('')}</tbody>
-    </table></div>`;
+  const rev=sales.reduce((s,x)=>s+x.revenue,0);
+  const tc=sales.reduce((s,x)=>s+x.totalCost,0);
+  const tf=sales.reduce((s,x)=>s+x.totalFee,0);
+  const net=sales.reduce((s,x)=>s+x.net,0);
+  const margin=rev>0?((net/rev)*100).toFixed(1):0;
+  box.innerHTML=`
+    <div class="sum-row"><span style="color:var(--muted)">ยอดขายรวม (฿)</span><span class="num-neutral">${fmtTHB(rev)}</span></div>
+    <div class="sum-row"><span style="color:var(--muted)">หัก ต้นทุนรวม</span><span class="num-neg">-${fmtTHB(tc)}</span></div>
+    <div class="sum-row"><span style="color:var(--muted)">หัก ค่าธรรมเนียมรวม</span><span class="num-neg">-${fmtTHB(tf)}</span></div>
+    <div class="sum-row total"><span>กำไรสุทธิรวม (฿)</span><span class="${net>=0?'num-pos':'num-neg'}">${fmtTHB(net)}</span></div>
+    <div class="sum-row"><span style="color:var(--muted)">% กำไรเฉลี่ย</span><span style="color:var(--accent)" class="mono">${margin}%</span></div>
+    <div class="sum-row"><span style="color:var(--muted)">จำนวนรายการ</span><span class="mono">${sales.length}</span></div>`;
+  // By map
+  const byMap={};
+  sales.forEach(s=>{const k=s.mapId||0;if(!byMap[k])byMap[k]={name:mapName(s.mapId),rev:0,tc:0,tf:0,net:0,n:0};byMap[k].rev+=s.revenue;byMap[k].tc+=s.totalCost;byMap[k].tf+=s.totalFee;byMap[k].net+=s.net;byMap[k].n++;});
+  document.getElementById('sum-bymap').innerHTML=`<div class="table-wrap"><table>
+    <thead><tr><th>แมพ</th><th>รายการ</th><th>ยอดขาย (฿)</th><th>ต้นทุน</th><th>ค่าธรรมเนียม</th><th>กำไรสุทธิ (฿)</th><th>% กำไร</th></tr></thead>
+    <tbody>${Object.values(byMap).map(r=>{const m=r.rev>0?((r.net/r.rev)*100).toFixed(1):0;return`<tr>
+      <td style="font-weight:500">${r.name}</td><td class="mono">${r.n}</td>
+      <td class="num-neutral">${fmtTHB(r.rev)}</td><td class="num-neg">-${fmtTHB(r.tc)}</td>
+      <td class="num-neg">-${fmtTHB(r.tf)}</td>
+      <td class="${r.net>=0?'num-pos':'num-neg'}">${fmtTHB(r.net)}</td>
+      <td style="color:var(--accent)" class="mono">${m}%</td>
+    </tr>`;}).join('')}</tbody></table></div>`;
+  // By seller
+  const bySeller={};
+  sales.forEach(s=>{const k=s.seller||'ไม่ระบุ';if(!bySeller[k])bySeller[k]={rev:0,net:0,n:0};bySeller[k].rev+=s.revenue;bySeller[k].net+=s.net;bySeller[k].n++;});
+  document.getElementById('sum-byseller').innerHTML=`<div class="table-wrap"><table>
+    <thead><tr><th>ผู้ขาย</th><th>รายการ</th><th>ยอดขาย (฿)</th><th>กำไรสุทธิ (฿)</th><th>% กำไร</th></tr></thead>
+    <tbody>${Object.entries(bySeller).map(([name,r])=>{const m=r.rev>0?((r.net/r.rev)*100).toFixed(1):0;return`<tr>
+      <td><span class="seller-tag">${name}</span></td><td class="mono">${r.n}</td>
+      <td class="num-neutral">${fmtTHB(r.rev)}</td>
+      <td class="${r.net>=0?'num-pos':'num-neg'}">${fmtTHB(r.net)}</td>
+      <td style="color:var(--accent)" class="mono">${m}%</td>
+    </tr>`;}).join('')}</tbody></table></div>`;
 };
 
 // ── DASHBOARD ──
-window.renderDashboard = function() {
-  const rev = sales.reduce((s,x)=>s+x.revenue,0);
-  const tc  = sales.reduce((s,x)=>s+x.totalCost,0);
-  const tf  = sales.reduce((s,x)=>s+x.totalFee,0);
-  const net = sales.reduce((s,x)=>s+x.net,0);
-  const margin = rev>0 ? ((net/rev)*100).toFixed(1) : 0;
-  document.getElementById('d-revenue').textContent = baht(rev);
-  document.getElementById('d-cost').textContent    = baht(tc);
-  document.getElementById('d-fee').textContent     = baht(tf);
-  document.getElementById('d-profit').textContent  = baht(net);
-  document.getElementById('d-maps').textContent     = maps.length + ' แมพ';
-  document.getElementById('d-products').textContent = products.length + ' ชิ้น';
-  document.getElementById('d-sales').textContent    = sales.length + ' รายการ';
-  document.getElementById('d-margin').textContent   = margin + '%';
-  const last5 = [...sales].reverse().slice(0,5);
-  document.getElementById('d-recent').innerHTML = !last5.length
-    ? '<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">ยังไม่มีรายการ</div></div>'
-    : last5.map(s => `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
-        <div>
-          <div style="font-weight:500;font-size:13.5px">${s.productName}</div>
-          <div style="font-size:11.5px;color:var(--muted)">${s.date||'—'} · ${mapName(s.mapId)}</div>
-        </div>
-        <div style="text-align:right">
-          <div class="${s.net>=0?'num-pos':'num-neg'}" style="font-size:14px">${baht(s.net)}</div>
-          <div style="font-size:11px;color:var(--muted)">ขาย ${baht(s.revenue)}</div>
-        </div>
-      </div>`).join('');
+window.renderDashboard=function(){
+  const rev=sales.reduce((s,x)=>s+x.revenue,0);
+  const tc=sales.reduce((s,x)=>s+x.totalCost,0);
+  const tf=sales.reduce((s,x)=>s+x.totalFee,0);
+  const net=sales.reduce((s,x)=>s+x.net,0);
+  const margin=rev>0?((net/rev)*100).toFixed(1):0;
+  // revenue in USD approx
+  const revUSD=usdRate>0?rev/usdRate:0;
+  const tfUSD=usdRate>0?tf/usdRate:0;
+  document.getElementById('d-revenue').textContent=usdRate?fmtUSD(revUSD):fmtTHB(rev);
+  document.getElementById('d-cost').textContent=fmtTHB(tc);
+  document.getElementById('d-fee').textContent=usdRate?fmtUSD(tfUSD):fmtTHB(tf);
+  document.getElementById('d-profit').textContent=fmtTHB(net);
+  document.getElementById('d-maps').textContent=maps.length;
+  document.getElementById('d-products').textContent=products.length;
+  document.getElementById('d-sales').textContent=sales.length;
+  document.getElementById('d-margin').textContent=margin+'%';
+  const last5=[...sales].reverse().slice(0,5);
+  document.getElementById('d-recent').innerHTML=!last5.length
+    ?'<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">ยังไม่มีรายการ</div></div>'
+    :last5.map(s=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-weight:500;font-size:13px">${s.productName}</div>
+        <div style="font-size:11px;color:var(--muted)">${s.date||'—'} · ${mapName(s.mapId)}${s.seller?' · '+s.seller:''}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="${s.net>=0?'num-pos':'num-neg'}">${fmtTHB(s.net)}</div>
+        <div style="font-size:11px;color:var(--muted)">ขาย ${s.currency==='usd'?fmtUSD(s.priceRaw):fmtTHB(s.priceRaw)}</div>
+      </div>
+    </div>`).join('');
+};
+
+// ── WALLET ──
+function getBalance(){return walletHistory.reduce((s,x)=>s+(x.type==='add'?x.amount:-x.amount),0);}
+window.addBalance=async function(){
+  const amt=parseFloat(document.getElementById('w-amount').value)||0;
+  if(!amt||amt<=0)return alert('กรุณากรอกจำนวนเงิน');
+  const note=document.getElementById('w-note').value.trim()||'เพิ่มเงิน';
+  const balance=getBalance()+amt;
+  setSyncStatus('syncing');
+  await push(ref(db,'roblox/wallet'),{id:Date.now(),type:'add',amount:amt,note,balance,date:new Date().toISOString().split('T')[0]});
+  setSyncStatus('online');
+  document.getElementById('w-amount').value='';document.getElementById('w-note').value='';
+};
+window.subtractBalance=async function(){
+  const amt=parseFloat(document.getElementById('w-amount').value)||0;
+  if(!amt||amt<=0)return alert('กรุณากรอกจำนวนเงิน');
+  const note=document.getElementById('w-note').value.trim()||'หักเงิน';
+  const balance=getBalance()-amt;
+  setSyncStatus('syncing');
+  await push(ref(db,'roblox/wallet'),{id:Date.now(),type:'sub',amount:amt,note,balance,date:new Date().toISOString().split('T')[0]});
+  setSyncStatus('online');
+  document.getElementById('w-amount').value='';document.getElementById('w-note').value='';
+};
+window.delWalletEntry=async function(key){if(!confirm('ลบ?'))return;setSyncStatus('syncing');await remove(ref(db,'roblox/wallet/'+key));setSyncStatus('online');};
+window.calcWithdraw=function(){
+  const amt=parseFloat(document.getElementById('w-withdraw-input').value)||0;
+  const fp=amt*0.0399,ff=119.99,net=amt-fp-ff;
+  document.getElementById('wp-amount').textContent=fmtTHB(amt);
+  document.getElementById('wp-pct').textContent='-'+fmtTHB(fp);
+  document.getElementById('wp-net').textContent=fmtTHB(net>0?net:0);
+  document.getElementById('wp-net').className=net>0?'num-pos':'num-neg';
+  document.getElementById('w-withdraw-preview').style.display=amt>0?'block':'none';
+};
+window.renderWallet=function(){
+  const bal=getBalance();
+  const fp=bal*0.0399,ff=119.99,net=bal-fp-ff;
+  document.getElementById('w-balance').textContent=fmtTHB(bal);
+  document.getElementById('w-balance-big').textContent=fmtTHB(bal);
+  document.getElementById('w-fee-display').textContent='-'+fmtTHB(fp+ff);
+  document.getElementById('w-net-display').textContent=fmtTHB(net>0?net:0);
+  document.getElementById('w-history-count').textContent=walletHistory.length;
+  const tb=document.getElementById('w-tbody');
+  if(!walletHistory.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">📒</div><div class="empty-text">ยังไม่มีรายการ</div></div></td></tr>';return;}
+  tb.innerHTML=[...walletHistory].reverse().map((w,i)=>`<tr>
+    <td style="color:var(--muted)">${walletHistory.length-i}</td>
+    <td style="color:var(--muted)">${w.date||'—'}</td>
+    <td><span class="badge ${w.type==='add'?'badge-green':'badge-red'}">${w.type==='add'?'+ เพิ่ม':'− หัก'}</span></td>
+    <td class="${w.type==='add'?'num-pos':'num-neg'}">${w.type==='add'?'+':'-'} ${fmtTHB(w.amount)}</td>
+    <td style="color:var(--muted)">${w.note||'—'}</td>
+    <td class="num-neutral">${fmtTHB(w.balance)}</td>
+    <td><button class="btn btn-danger btn-sm" onclick="delWalletEntry('${w._key}')">ลบ</button></td>
+  </tr>`).join('');
 };
 
 // ── NAV ──
-window.go = function(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+window.go=function(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item,.mobile-nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
-  document.getElementById('nav-'+page).classList.add('active');
-  if (page==='products') fillMapSelect('p-map');
-  if (page==='sales')    { fillProdSelect(); document.getElementById('s-date').valueAsDate = new Date(); }
-  if (page==='summary')  renderSummary();
+  document.getElementById('nav-'+page)?.classList.add('active');
+  document.getElementById('mnav-'+page)?.classList.add('active');
+  if(page==='products')fillMapSelect('p-map');
+  if(page==='sales'){fillProdSelect();fillSellerSelect();document.getElementById('s-date').valueAsDate=new Date();}
+  if(page==='summary')renderSummary();
+  if(page==='wallet')renderWallet();
+  if(page==='dashboard')setTimeout(renderChart,100);
 };
 
 // ── INIT ──
-document.getElementById('s-date').valueAsDate = new Date();
-
+document.getElementById('s-date').valueAsDate=new Date();
 </script>
 </body>
 </html>
