@@ -567,18 +567,18 @@ window.setManualRate=function(v){usdRate=parseFloat(v)||0;renderProducts();rende
 // ── HELPERS ──
 const fmtUSD=n=>'$'+Number(n||0).toFixed(2);
 const fmtTHB=n=>'฿'+Number(n||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
-window.mapName=id=>{const m=maps.find(x=>x.id===id);return m?m.name:'—';};
+window.mapName=key=>{const m=maps.find(x=>x._key===key);return m?m.name:'—';};
 function toTHB(amount,currency){return currency==='usd'?amount*usdRate:amount;}
 
 window.fillMapSelect=function(elId){
   const el=document.getElementById(elId),cur=el.value;
-  el.innerHTML='<option value="">— ไม่ระบุ —</option>'+maps.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  el.innerHTML='<option value="">— ไม่ระบุ —</option>'+maps.map(m=>`<option value="${m._key}">${m.name}</option>`).join('');
   el.value=cur;
 };
 window.fillProdSelect=function(){
   const el=document.getElementById('s-prod');
   el.innerHTML='<option value="">— เลือกสินค้า —</option>'+
-    products.map(p=>`<option value="${p.id}">${p.name}${p.mapId?' ('+mapName(p.mapId)+')':''}</option>`).join('');
+    products.map(p=>`<option value="${p._key}">${p.name}${p.mapId?' ('+mapName(p.mapId)+')':''}</option>`).join('');
 };
 function fillSellerSelect(){
   const el=document.getElementById('s-seller');
@@ -638,9 +638,11 @@ window.addMap=async function(){
   const name=document.getElementById('m-name').value.trim();
   if(!name)return alert('กรุณากรอกชื่อแมพ');
   setSyncStatus('syncing');
-  await push(ref(db,'roblox/maps'),{id:Date.now(),name,cat:document.getElementById('m-cat').value,note:document.getElementById('m-note').value.trim()});
-  setSyncStatus('online');
-  document.getElementById('m-name').value='';document.getElementById('m-note').value='';
+  try{
+    await push(ref(db,'roblox/maps'),{name,cat:document.getElementById('m-cat').value,note:document.getElementById('m-note').value.trim(),ts:Date.now()});
+    setSyncStatus('online');
+    document.getElementById('m-name').value='';document.getElementById('m-note').value='';
+  }catch(e){setSyncStatus('error');alert('เพิ่มไม่ได้: '+e.message);}
 };
 window.delMap=async function(key){if(!confirm('ลบแมพนี้?'))return;setSyncStatus('syncing');await remove(ref(db,'roblox/maps/'+key));setSyncStatus('online');};
 
@@ -652,7 +654,7 @@ window.renderMaps=function(){
     <td style="color:var(--muted)">${i+1}</td>
     <td style="font-weight:500">${m.name}</td>
     <td><span class="badge badge-blue">${m.cat}</span></td>
-    <td>${products.filter(p=>p.mapId===m.id).length}</td>
+    <td>${products.filter(p=>p.mapId===m._key).length}</td>
     <td style="color:var(--muted)">${m.note||'—'}</td>
     <td><button class="btn btn-danger btn-sm" onclick="delMap('${m._key}')">ลบ</button></td>
   </tr>`).join('');
@@ -663,18 +665,20 @@ window.addProduct=async function(){
   const name=document.getElementById('p-name').value.trim();
   if(!name)return alert('กรุณากรอกชื่อสินค้า');
   setSyncStatus('syncing');
-  await push(ref(db,'roblox/products'),{
-    id:Date.now(),name,
-    mapId:parseInt(document.getElementById('p-map').value)||null,
-    type:document.getElementById('p-type').value,
-    cost:parseFloat(document.getElementById('p-cost').value)||0,
-    price:parseFloat(document.getElementById('p-price').value)||0,
-    feePct:parseFloat(document.getElementById('p-fee').value)||0,
-    note:document.getElementById('p-note').value.trim()
-  });
-  setSyncStatus('online');
-  ['p-name','p-cost','p-price','p-note'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('p-fee').value='0';
+  try{
+    await push(ref(db,'roblox/products'),{
+      name,ts:Date.now(),
+      mapId:document.getElementById('p-map').value||null,
+      type:document.getElementById('p-type').value,
+      cost:parseFloat(document.getElementById('p-cost').value)||0,
+      price:parseFloat(document.getElementById('p-price').value)||0,
+      feePct:parseFloat(document.getElementById('p-fee').value)||0,
+      note:document.getElementById('p-note').value.trim()
+    });
+    setSyncStatus('online');
+    ['p-name','p-cost','p-price','p-note'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('p-fee').value='0';
+  }catch(e){setSyncStatus('error');alert('เพิ่มไม่ได้: '+e.message);}
 };
 window.delProduct=async function(key){if(!confirm('ลบสินค้านี้?'))return;setSyncStatus('syncing');await remove(ref(db,'roblox/products/'+key));setSyncStatus('online');};
 
@@ -697,7 +701,7 @@ window.saveEditProduct=async function(){
   setSyncStatus('syncing');
   await update(ref(db,'roblox/products/'+key),{
     name:document.getElementById('edit-name').value.trim(),
-    mapId:parseInt(document.getElementById('edit-map').value)||null,
+    mapId:document.getElementById('edit-map').value||null,
     type:document.getElementById('edit-type').value,
     cost:parseFloat(document.getElementById('edit-cost').value)||0,
     price:parseFloat(document.getElementById('edit-price').value)||0,
@@ -736,8 +740,8 @@ window.renderProducts=function(){
 
 // ── SALES ──
 window.onProdSelect=function(){
-  const id=parseInt(document.getElementById('s-prod').value);
-  const p=products.find(x=>x.id===id);
+  const key=document.getElementById('s-prod').value;
+  const p=products.find(x=>x._key===key);
   if(p){
     document.getElementById('s-price').value=p.price||'';
     document.getElementById('s-cost').value=p.cost||'';
@@ -765,9 +769,10 @@ window.updatePreview=function(){
   document.getElementById('s-preview').style.display='block';
 };
 window.addSale=async function(){
-  const prodId=parseInt(document.getElementById('s-prod').value);
-  if(!prodId)return alert('กรุณาเลือกสินค้า');
-  const prod=products.find(p=>p.id===prodId);
+  const prodKey=document.getElementById('s-prod').value;
+  if(!prodKey)return alert('กรุณาเลือกสินค้า');
+  const prod=products.find(p=>p._key===prodKey);
+  if(!prod)return alert('ไม่พบสินค้า กรุณาเลือกใหม่');
   const qty=parseFloat(document.getElementById('s-qty').value)||1;
   const priceRaw=parseFloat(document.getElementById('s-price').value)||0;
   const currency=document.getElementById('s-currency').value;
@@ -778,19 +783,21 @@ window.addSale=async function(){
   const tfTHB=toTHB(priceRaw*(feePct/100),currency)*qty;
   const net=revTHB-tc-tfTHB;
   setSyncStatus('syncing');
-  await push(ref(db,'roblox/sales'),{
-    id:Date.now(),productId:prodId,productName:prod.name,mapId:prod.mapId||null,
-    qty,priceRaw,currency,cost,feePct,
-    revenue:revTHB,totalCost:tc,totalFee:tfTHB,net,
-    seller:document.getElementById('s-seller').value,
-    buyer:document.getElementById('s-buyer').value.trim(),
-    note:document.getElementById('s-note').value.trim(),
-    date:document.getElementById('s-date').value
-  });
-  setSyncStatus('online');
-  document.getElementById('s-prod').value='';document.getElementById('s-qty').value='1';
-  ['s-price','s-cost','s-fee-pct','s-buyer','s-note'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('s-preview').style.display='none';
+  try{
+    await push(ref(db,'roblox/sales'),{
+      ts:Date.now(),productId:prodKey,productName:prod.name,mapId:prod.mapId||null,
+      qty,priceRaw,currency,cost,feePct,
+      revenue:revTHB,totalCost:tc,totalFee:tfTHB,net,
+      seller:document.getElementById('s-seller').value,
+      buyer:document.getElementById('s-buyer').value.trim(),
+      note:document.getElementById('s-note').value.trim(),
+      date:document.getElementById('s-date').value
+    });
+    setSyncStatus('online');
+    document.getElementById('s-prod').value='';document.getElementById('s-qty').value='1';
+    ['s-price','s-cost','s-fee-pct','s-buyer','s-note'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('s-preview').style.display='none';
+  }catch(e){setSyncStatus('error');alert('บันทึกไม่ได้: '+e.message);}
 };
 window.delSale=async function(key){if(!confirm('ลบรายการนี้?'))return;setSyncStatus('syncing');await remove(ref(db,'roblox/sales/'+key));setSyncStatus('online');};
 
