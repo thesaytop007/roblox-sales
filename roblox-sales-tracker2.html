@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roblox Sales Log</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f7f5;
+  --surface: #ffffff;
+  --border: #e4e4e0;
+  --border2: #d0d0ca;
+  --text: #1a1a18;
+  --muted: #888880;
+  --accent: #2563eb;
+  --accent-bg: #eff6ff;
+  --green: #16a34a;
+  --green-bg: #f0fdf4;
+  --red: #dc2626;
+  --red-bg: #fef2f2;
+  --yellow: #d97706;
+  --yellow-bg: #fffbeb;
+  --radius: 10px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'IBM Plex Sans Thai',sans-serif; background:var(--bg); color:var(--text); font-size:14px; line-height:1.6; min-height:100vh; }
+
+.layout { display:flex; min-height:100vh; }
+
+/* SIDEBAR */
+.sidebar { width:220px; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:50; }
+.sidebar-logo { padding:20px 20px 16px; border-bottom:1px solid var(--border); }
+.logo-text { font-size:15px; font-weight:600; color:var(--text); }
+.logo-sub { font-size:11px; color:var(--muted); margin-top:1px; }
+.sidebar-nav { padding:12px 10px; flex:1; }
+.nav-item { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:7px; cursor:pointer; font-size:13.5px; color:var(--muted); font-weight:400; transition:background 0.15s,color 0.15s; margin-bottom:2px; user-select:none; }
+.nav-item:hover { background:var(--bg); color:var(--text); }
+.nav-item.active { background:var(--accent-bg); color:var(--accent); font-weight:500; }
+.nav-icon { font-size:15px; width:18px; text-align:center; flex-shrink:0; }
+.sidebar-footer { padding:14px 16px; border-top:1px solid var(--border); font-size:11px; color:var(--muted); }
+
+/* SYNC STATUS */
+.sync-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:#ccc; margin-right:5px; transition:background 0.3s; }
+.sync-dot.online { background:var(--green); }
+.sync-dot.syncing { background:var(--yellow); animation:pulse 1s infinite; }
+.sync-dot.error { background:var(--red); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* MAIN */
+.main { margin-left:220px; flex:1; padding:32px 32px 60px; max-width:calc(100vw - 220px); }
+.page { display:none; }
+.page.active { display:block; animation:up 0.2s ease; }
+@keyframes up { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+.page-header { margin-bottom:24px; }
+.page-title { font-size:20px; font-weight:600; letter-spacing:-0.4px; }
+.page-sub { font-size:13px; color:var(--muted); margin-top:2px; }
+
+/* CARDS */
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; margin-bottom:16px; }
+.card-title { font-size:13px; font-weight:600; color:var(--text); margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; }
+
+/* STATS */
+.stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+.stat { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow); }
+.stat-label { font-size:11.5px; color:var(--muted); margin-bottom:6px; font-weight:500; }
+.stat-num { font-family:'IBM Plex Mono',monospace; font-size:22px; font-weight:600; color:var(--text); letter-spacing:-0.5px; }
+.stat-num.green { color:var(--green); }
+.stat-num.red { color:var(--red); }
+.stat-num.blue { color:var(--accent); }
+
+/* FORM */
+.form-row { display:grid; gap:12px; margin-bottom:14px; }
+.cols-2 { grid-template-columns:repeat(2,1fr); }
+.cols-3 { grid-template-columns:repeat(3,1fr); }
+.field { display:flex; flex-direction:column; gap:5px; }
+label { font-size:12px; font-weight:500; color:var(--muted); }
+input,select { background:var(--bg); border:1px solid var(--border); border-radius:7px; padding:8px 10px; font-family:inherit; font-size:13.5px; color:var(--text); transition:border-color 0.15s,box-shadow 0.15s; width:100%; }
+input:focus,select:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(37,99,235,0.1); background:#fff; }
+input::placeholder { color:#bbb; }
+select option { background:#fff; }
+
+/* BUTTONS */
+.btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:7px; border:none; cursor:pointer; font-family:inherit; font-size:13px; font-weight:500; transition:opacity 0.15s,transform 0.1s; }
+.btn:active { transform:scale(0.98); }
+.btn-primary { background:var(--accent); color:#fff; }
+.btn-primary:hover { opacity:0.88; }
+.btn-danger { background:var(--red-bg); color:var(--red); border:1px solid #fecaca; }
+.btn-danger:hover { opacity:0.8; }
+.btn-sm { padding:4px 10px; font-size:12px; }
+
+/* TABLE */
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th { text-align:left; padding:8px 12px; font-size:11.5px; font-weight:600; color:var(--muted); border-bottom:1px solid var(--border); white-space:nowrap; }
+td { padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:middle; }
+tr:last-child td { border-bottom:none; }
+tbody tr:hover { background:var(--bg); }
+
+/* BADGES */
+.badge { display:inline-flex; align-items:center; padding:2px 8px; border-radius:999px; font-size:11.5px; font-weight:500; }
+.badge-blue { background:var(--accent-bg); color:var(--accent); }
+.badge-green { background:var(--green-bg); color:var(--green); }
+.badge-gray { background:#f3f3f0; color:var(--muted); }
+
+/* NUMBERS */
+.mono { font-family:'IBM Plex Mono',monospace; font-size:13px; }
+.num-pos { color:var(--green); font-weight:600; font-family:'IBM Plex Mono',monospace; }
+.num-neg { color:var(--red); font-weight:600; font-family:'IBM Plex Mono',monospace; }
+.num-neutral { font-family:'IBM Plex Mono',monospace; color:var(--text); }
+
+/* EMPTY */
+.empty { text-align:center; padding:40px 20px; color:var(--muted); }
+.empty-icon { font-size:28px; margin-bottom:8px; opacity:0.5; }
+.empty-text { font-size:13px; }
+
+hr { border:none; border-top:1px solid var(--border); margin:16px 0; }
+
+/* PREVIEW */
+.preview-box { background:var(--green-bg); border:1px solid #bbf7d0; border-radius:var(--radius); padding:14px 16px; margin:12px 0; display:none; }
+.preview-row { display:flex; justify-content:space-between; align-items:center; padding:4px 0; font-size:13px; }
+.preview-row.total { border-top:1px solid #bbf7d0; margin-top:6px; padding-top:10px; font-weight:600; font-size:14px; }
+
+/* SUMMARY */
+.summary-row { display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border); font-size:13.5px; }
+.summary-row:last-child { border:none; }
+.summary-row.total { font-weight:600; font-size:15px; padding-top:12px; border-top:2px solid var(--border2); margin-top:4px; }
+
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+/* LOADING OVERLAY */
+.loading-overlay { position:fixed; inset:0; background:rgba(247,247,245,0.85); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:999; gap:12px; font-size:14px; color:var(--muted); }
+.spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+@media (max-width:800px) {
+  .sidebar { display:none; }
+  .main { margin-left:0; padding:16px; max-width:100vw; }
+  .stats-row { grid-template-columns:repeat(2,1fr); }
+  .two-col { grid-template-columns:1fr; }
+  .cols-3 { grid-template-columns:repeat(2,1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div>กำลังเชื่อมต่อ Firebase...</div>
+</div>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">🎮 Roblox Sales Log</div>
+    <div class="logo-sub">
+      <span class="sync-dot" id="sync-dot"></span>
+      <span id="sync-label">กำลังเชื่อมต่อ...</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" onclick="go('dashboard')" id="nav-dashboard"><span class="nav-icon">📊</span> ภาพรวม</div>
+    <div class="nav-item" onclick="go('maps')" id="nav-maps"><span class="nav-icon">🗺️</span> แมพ</div>
+    <div class="nav-item" onclick="go('products')" id="nav-products"><span class="nav-icon">📦</span> สินค้า</div>
+    <div class="nav-item" onclick="go('sales')" id="nav-sales"><span class="nav-icon">📝</span> บันทึกการขาย</div>
+    <div class="nav-item" onclick="go('summary')" id="nav-summary"><span class="nav-icon">💰</span> สรุปกำไร</div>
+  </nav>
+  <div class="sidebar-footer">Sync แบบ Real-time 🔄</div>
+</aside>
+
+<main class="main">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-header">
+      <div class="page-title">ภาพรวม</div>
+      <div class="page-sub">สรุปข้อมูลทั้งหมดแบบ real-time</div>
+    </div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-label">ยอดขายรวม</div><div class="stat-num blue" id="d-revenue">฿0</div></div>
+      <div class="stat"><div class="stat-label">ต้นทุนรวม</div><div class="stat-num red" id="d-cost">฿0</div></div>
+      <div class="stat"><div class="stat-label">ค่าธรรมเนียมรวม</div><div class="stat-num" style="color:var(--yellow)" id="d-fee">฿0</div></div>
+      <div class="stat"><div class="stat-label">กำไรสุทธิ</div><div class="stat-num green" id="d-profit">฿0</div></div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">ข้อมูลทั้งหมด</div>
+        <div class="summary-row"><span style="color:var(--muted)">แมพทั้งหมด</span><span class="mono" id="d-maps">0 แมพ</span></div>
+        <div class="summary-row"><span style="color:var(--muted)">สินค้าทั้งหมด</span><span class="mono" id="d-products">0 ชิ้น</span></div>
+        <div class="summary-row"><span style="color:var(--muted)">รายการขายทั้งหมด</span><span class="mono" id="d-sales">0 รายการ</span></div>
+        <div class="summary-row"><span style="color:var(--muted)">% กำไรเฉลี่ย</span><span class="mono num-pos" id="d-margin">0%</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">รายการล่าสุด</div>
+        <div id="d-recent"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">ยังไม่มีรายการ</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAPS -->
+  <div class="page" id="page-maps">
+    <div class="page-header">
+      <div class="page-title">แมพ</div>
+      <div class="page-sub">จัดการแมพที่คุณขายสินค้า</div>
+    </div>
+    <div class="card">
+      <div class="card-title">เพิ่มแมพใหม่</div>
+      <div class="form-row cols-3">
+        <div class="field"><label>ชื่อแมพ *</label><input id="m-name" placeholder="เช่น Blox Fruits, Adopt Me..."></div>
+        <div class="field"><label>หมวดหมู่</label>
+          <select id="m-cat"><option>RPG</option><option>Simulator</option><option>Tycoon</option><option>Adventure</option><option>Battle Royale</option><option>อื่นๆ</option></select>
+        </div>
+        <div class="field"><label>หมายเหตุ</label><input id="m-note" placeholder="บันทึกเพิ่มเติม (ไม่บังคับ)"></div>
+      </div>
+      <button class="btn btn-primary" onclick="addMap()">+ เพิ่มแมพ</button>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>รายการแมพทั้งหมด</span><span class="badge badge-blue" id="m-count">0 แมพ</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>ชื่อแมพ</th><th>หมวดหมู่</th><th>สินค้า</th><th>หมายเหตุ</th><th></th></tr></thead>
+          <tbody id="m-tbody"><tr><td colspan="6"><div class="empty"><div class="empty-icon">🗺️</div><div class="empty-text">ยังไม่มีแมพ</div></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <div class="page" id="page-products">
+    <div class="page-header">
+      <div class="page-title">สินค้า</div>
+      <div class="page-sub">สินค้าที่คุณขายในแต่ละแมพ</div>
+    </div>
+    <div class="card">
+      <div class="card-title">เพิ่มสินค้าใหม่</div>
+      <div class="form-row cols-3">
+        <div class="field"><label>ชื่อสินค้า *</label><input id="p-name" placeholder="เช่น Sword Level 10, Rare Pet..."></div>
+        <div class="field"><label>แมพ</label><select id="p-map"><option value="">— ไม่ระบุ —</option></select></div>
+        <div class="field"><label>ประเภทสินค้า</label>
+          <select id="p-type"><option>Item / ไอเทม</option><option>Pet / เพ็ต</option><option>Currency / เงินเกม</option><option>Account / บัญชี</option><option>Gamepass</option><option>บริการ</option></select>
+        </div>
+      </div>
+      <div class="form-row cols-3">
+        <div class="field"><label>ต้นทุน (฿)</label><input id="p-cost" type="number" placeholder="0" min="0"></div>
+        <div class="field"><label>ราคาขายปกติ (฿)</label><input id="p-price" type="number" placeholder="0" min="0"></div>
+        <div class="field"><label>ค่าธรรมเนียมปกติ (฿)</label><input id="p-fee" type="number" placeholder="0" min="0" value="0"></div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="field"><label>หมายเหตุ</label><input id="p-note" placeholder="บันทึกเพิ่มเติม (ไม่บังคับ)"></div>
+      </div>
+      <button class="btn btn-primary" onclick="addProduct()">+ เพิ่มสินค้า</button>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>รายการสินค้าทั้งหมด</span><span class="badge badge-blue" id="p-count">0 สินค้า</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>ชื่อสินค้า</th><th>แมพ</th><th>ประเภท</th><th>ต้นทุน</th><th>ราคาขาย</th><th>ค่าธรรมเนียม</th><th>กำไร/ชิ้น</th><th></th></tr></thead>
+          <tbody id="p-tbody"><tr><td colspan="9"><div class="empty"><div class="empty-icon">📦</div><div class="empty-text">ยังไม่มีสินค้า</div></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SALES -->
+  <div class="page" id="page-sales">
+    <div class="page-header">
+      <div class="page-title">บันทึกการขาย</div>
+      <div class="page-sub">บันทึกทุกครั้งที่ขายสินค้าออก</div>
+    </div>
+    <div class="card">
+      <div class="card-title">บันทึกรายการใหม่</div>
+      <div class="form-row cols-3">
+        <div class="field"><label>สินค้า *</label><select id="s-prod" onchange="onProdSelect()"><option value="">— เลือกสินค้า —</option></select></div>
+        <div class="field"><label>จำนวนที่ขาย</label><input id="s-qty" type="number" value="1" min="1" oninput="updatePreview()"></div>
+        <div class="field"><label>วันที่ขาย</label><input id="s-date" type="date"></div>
+      </div>
+      <div class="form-row cols-3">
+        <div class="field"><label>ราคาขายจริง (฿)</label><input id="s-price" type="number" placeholder="0" oninput="updatePreview()"></div>
+        <div class="field"><label>ต้นทุนจริง (฿)</label><input id="s-cost" type="number" placeholder="0" oninput="updatePreview()"></div>
+        <div class="field"><label>ค่าธรรมเนียม (฿)</label><input id="s-fee" type="number" placeholder="0" oninput="updatePreview()"></div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="field"><label>ผู้ซื้อ (ไม่บังคับ)</label><input id="s-buyer" placeholder="Roblox username"></div>
+        <div class="field"><label>หมายเหตุ</label><input id="s-note" placeholder="บันทึกเพิ่มเติม"></div>
+      </div>
+      <div class="preview-box" id="s-preview">
+        <div class="preview-row"><span style="color:var(--muted)">ราคาขายรวม</span><span class="mono" id="pv-revenue">฿0</span></div>
+        <div class="preview-row"><span style="color:var(--muted)">หัก ต้นทุน</span><span class="num-neg" id="pv-cost">- ฿0</span></div>
+        <div class="preview-row"><span style="color:var(--muted)">หัก ค่าธรรมเนียม</span><span class="num-neg" id="pv-fee">- ฿0</span></div>
+        <div class="preview-row total"><span>กำไรสุทธิ</span><span id="pv-profit" class="num-pos">฿0</span></div>
+      </div>
+      <button class="btn btn-primary" onclick="addSale()">💾 บันทึกการขาย</button>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>ประวัติการขายทั้งหมด</span><span class="badge badge-green" id="s-count">0 รายการ</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>วันที่</th><th>สินค้า</th><th>แมพ</th><th>จำนวน</th><th>ราคาขาย</th><th>ต้นทุน</th><th>ค่าธรรมเนียม</th><th>กำไรสุทธิ</th><th>ผู้ซื้อ</th><th></th></tr></thead>
+          <tbody id="s-tbody"><tr><td colspan="11"><div class="empty"><div class="empty-icon">📝</div><div class="empty-text">ยังไม่มีรายการ</div></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="page" id="page-summary">
+    <div class="page-header">
+      <div class="page-title">สรุปกำไร</div>
+      <div class="page-sub">ภาพรวมรายได้ ต้นทุน และกำไรทั้งหมด</div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">สรุปรวมทั้งหมด</div>
+        <div id="sum-overall"><div class="empty"><div class="empty-icon">📊</div><div class="empty-text">ยังไม่มีข้อมูล</div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">คำนวณด่วน</div>
+        <div class="form-row" style="grid-template-columns:1fr;">
+          <div class="field"><label>ราคาขาย (฿)</label><input id="c-price" type="number" placeholder="0" oninput="calcQuick()"></div>
+          <div class="field"><label>ต้นทุน (฿)</label><input id="c-cost" type="number" placeholder="0" oninput="calcQuick()"></div>
+          <div class="field"><label>ค่าธรรมเนียม (฿)</label><input id="c-fee" type="number" placeholder="0" oninput="calcQuick()"></div>
+          <div class="field"><label>จำนวน</label><input id="c-qty" type="number" value="1" min="1" oninput="calcQuick()"></div>
+        </div>
+        <hr>
+        <div class="summary-row"><span style="color:var(--muted)">ราคาขายรวม</span><span class="num-neutral" id="c-revenue">฿0</span></div>
+        <div class="summary-row"><span style="color:var(--muted)">หัก ต้นทุน</span><span class="num-neg" id="c-total-cost">- ฿0</span></div>
+        <div class="summary-row"><span style="color:var(--muted)">หัก ค่าธรรมเนียม</span><span class="num-neg" id="c-total-fee">- ฿0</span></div>
+        <div class="summary-row total"><span>กำไรสุทธิ</span><span id="c-profit" class="num-pos">฿0</span></div>
+        <div class="summary-row"><span style="color:var(--muted)">% กำไร</span><span class="mono" id="c-margin" style="color:var(--accent)">0%</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">สรุปแยกตามแมพ</div>
+      <div id="sum-bymap"><div class="empty"><div class="empty-icon">🗺️</div><div class="empty-text">ยังไม่มีข้อมูล</div></div></div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, push, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD12NfU0-ZDNoaiuvdCPNhtL7UaWtjeBeQ",
+  authDomain: "flutter-ai-playground-f5fd4.firebaseapp.com",
+  databaseURL: "https://flutter-ai-playground-f5fd4-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "flutter-ai-playground-f5fd4",
+  storageBucket: "flutter-ai-playground-f5fd4.firebasestorage.app",
+  messagingSenderId: "994360853022",
+  appId: "1:994360853022:web:95dfcbb22db7aab2fca40f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+// ── STATE ──
+let maps = [], products = [], sales = [];
+let mapsReady = false, productsReady = false, salesReady = false;
+
+function checkAllReady() {
+  if (mapsReady && productsReady && salesReady) {
+    document.getElementById('loading').style.display = 'none';
+    setSyncStatus('online');
+  }
+}
+
+// ── SYNC STATUS ──
+function setSyncStatus(state) {
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-label');
+  dot.className = 'sync-dot ' + state;
+  lbl.textContent = state === 'online' ? 'เชื่อมต่อแล้ว' : state === 'syncing' ? 'กำลังบันทึก...' : 'ไม่สามารถเชื่อมต่อได้';
+}
+
+// ── HELPERS ──
+window.baht = n => '฿' + Number(n || 0).toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+window.mapName = id => { const m = maps.find(x => x.id === id); return m ? m.name : '—'; };
+
+window.fillMapSelect = function(elId) {
+  const el = document.getElementById(elId);
+  const cur = el.value;
+  el.innerHTML = '<option value="">— ไม่ระบุ —</option>' + maps.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+  el.value = cur;
+};
+
+window.fillProdSelect = function() {
+  const el = document.getElementById('s-prod');
+  el.innerHTML = '<option value="">— เลือกสินค้า —</option>' +
+    products.map(p => `<option value="${p.id}">${p.name}${p.mapId ? ' (' + mapName(p.mapId) + ')' : ''}</option>`).join('');
+};
+
+// ── REALTIME LISTENERS ──
+onValue(ref(db, 'roblox/maps'), snap => {
+  maps = [];
+  snap.forEach(c => maps.push({ ...c.val(), _key: c.key }));
+  mapsReady = true;
+  checkAllReady();
+  renderMaps(); renderProducts(); renderSales(); renderDashboard();
+  if (document.getElementById('page-summary').classList.contains('active')) renderSummary();
+}, err => { setSyncStatus('error'); console.error(err); });
+
+onValue(ref(db, 'roblox/products'), snap => {
+  products = [];
+  snap.forEach(c => products.push({ ...c.val(), _key: c.key }));
+  productsReady = true;
+  checkAllReady();
+  renderProducts(); renderSales(); renderDashboard();
+  if (document.getElementById('page-summary').classList.contains('active')) renderSummary();
+}, err => { setSyncStatus('error'); });
+
+onValue(ref(db, 'roblox/sales'), snap => {
+  sales = [];
+  snap.forEach(c => sales.push({ ...c.val(), _key: c.key }));
+  salesReady = true;
+  checkAllReady();
+  renderSales(); renderDashboard();
+  if (document.getElementById('page-summary').classList.contains('active')) renderSummary();
+}, err => { setSyncStatus('error'); });
+
+// ── MAPS ──
+window.addMap = async function() {
+  const name = document.getElementById('m-name').value.trim();
+  if (!name) return alert('กรุณากรอกชื่อแมพ');
+  setSyncStatus('syncing');
+  await push(ref(db, 'roblox/maps'), {
+    id: Date.now(), name,
+    cat: document.getElementById('m-cat').value,
+    note: document.getElementById('m-note').value.trim()
+  });
+  setSyncStatus('online');
+  document.getElementById('m-name').value = '';
+  document.getElementById('m-note').value = '';
+};
+
+window.delMap = async function(key) {
+  if (!confirm('ลบแมพนี้?')) return;
+  setSyncStatus('syncing');
+  await remove(ref(db, 'roblox/maps/' + key));
+  setSyncStatus('online');
+};
+
+window.renderMaps = function() {
+  const tb = document.getElementById('m-tbody');
+  document.getElementById('m-count').textContent = maps.length + ' แมพ';
+  if (!maps.length) { tb.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">🗺️</div><div class="empty-text">ยังไม่มีแมพ</div></div></td></tr>'; return; }
+  tb.innerHTML = maps.map((m, i) => `
+    <tr>
+      <td style="color:var(--muted)">${i+1}</td>
+      <td style="font-weight:500">${m.name}</td>
+      <td><span class="badge badge-blue">${m.cat}</span></td>
+      <td>${products.filter(p => p.mapId === m.id).length} สินค้า</td>
+      <td style="color:var(--muted)">${m.note || '—'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="delMap('${m._key}')">ลบ</button></td>
+    </tr>`).join('');
+};
+
+// ── PRODUCTS ──
+window.addProduct = async function() {
+  const name = document.getElementById('p-name').value.trim();
+  if (!name) return alert('กรุณากรอกชื่อสินค้า');
+  setSyncStatus('syncing');
+  await push(ref(db, 'roblox/products'), {
+    id: Date.now(), name,
+    mapId: parseInt(document.getElementById('p-map').value) || null,
+    type: document.getElementById('p-type').value,
+    cost:  parseFloat(document.getElementById('p-cost').value)  || 0,
+    price: parseFloat(document.getElementById('p-price').value) || 0,
+    fee:   parseFloat(document.getElementById('p-fee').value)   || 0,
+    note:  document.getElementById('p-note').value.trim()
+  });
+  setSyncStatus('online');
+  ['p-name','p-cost','p-price','p-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('p-fee').value = '0';
+};
+
+window.delProduct = async function(key) {
+  if (!confirm('ลบสินค้านี้?')) return;
+  setSyncStatus('syncing');
+  await remove(ref(db, 'roblox/products/' + key));
+  setSyncStatus('online');
+};
+
+window.renderProducts = function() {
+  const tb = document.getElementById('p-tbody');
+  document.getElementById('p-count').textContent = products.length + ' สินค้า';
+  fillMapSelect('p-map');
+  if (!products.length) { tb.innerHTML = '<tr><td colspan="9"><div class="empty"><div class="empty-icon">📦</div><div class="empty-text">ยังไม่มีสินค้า</div></div></td></tr>'; return; }
+  tb.innerHTML = products.map((p, i) => {
+    const net = p.price - p.cost - p.fee;
+    return `<tr>
+      <td style="color:var(--muted)">${i+1}</td>
+      <td style="font-weight:500">${p.name}</td>
+      <td><span class="badge badge-gray">${mapName(p.mapId)}</span></td>
+      <td><span class="badge badge-blue">${p.type}</span></td>
+      <td class="num-neg">${baht(p.cost)}</td>
+      <td class="num-neutral">${baht(p.price)}</td>
+      <td class="num-neg">${baht(p.fee)}</td>
+      <td class="${net>=0?'num-pos':'num-neg'}">${baht(net)}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="delProduct('${p._key}')">ลบ</button></td>
+    </tr>`;
+  }).join('');
+};
+
+// ── SALES ──
+window.onProdSelect = function() {
+  const id = parseInt(document.getElementById('s-prod').value);
+  const p = products.find(x => x.id === id);
+  if (p) {
+    document.getElementById('s-price').value = p.price || '';
+    document.getElementById('s-cost').value  = p.cost  || '';
+    document.getElementById('s-fee').value   = p.fee   || '';
+  }
+  updatePreview();
+};
+
+window.updatePreview = function() {
+  const qty   = parseFloat(document.getElementById('s-qty').value)   || 1;
+  const price = parseFloat(document.getElementById('s-price').value) || 0;
+  const cost  = parseFloat(document.getElementById('s-cost').value)  || 0;
+  const fee   = parseFloat(document.getElementById('s-fee').value)   || 0;
+  if (!price && !cost && !fee) { document.getElementById('s-preview').style.display='none'; return; }
+  const rev = price*qty, tc = cost*qty, tf = fee*qty, net = rev-tc-tf;
+  document.getElementById('pv-revenue').textContent = baht(rev);
+  document.getElementById('pv-cost').textContent    = '- ' + baht(tc);
+  document.getElementById('pv-fee').textContent     = '- ' + baht(tf);
+  document.getElementById('pv-profit').textContent  = baht(net);
+  document.getElementById('pv-profit').className    = net>=0 ? 'num-pos' : 'num-neg';
+  document.getElementById('s-preview').style.display = 'block';
+};
+
+window.addSale = async function() {
+  const prodId = parseInt(document.getElementById('s-prod').value);
+  if (!prodId) return alert('กรุณาเลือกสินค้า');
+  const prod  = products.find(p => p.id === prodId);
+  const qty   = parseFloat(document.getElementById('s-qty').value)   || 1;
+  const price = parseFloat(document.getElementById('s-price').value) || 0;
+  const cost  = parseFloat(document.getElementById('s-cost').value)  || 0;
+  const fee   = parseFloat(document.getElementById('s-fee').value)   || 0;
+  const rev = price*qty, tc = cost*qty, tf = fee*qty, net = rev-tc-tf;
+  setSyncStatus('syncing');
+  await push(ref(db, 'roblox/sales'), {
+    id: Date.now(),
+    productId: prodId, productName: prod.name,
+    mapId: prod.mapId || null,
+    qty, price, cost, fee,
+    revenue: rev, totalCost: tc, totalFee: tf, net,
+    date:  document.getElementById('s-date').value,
+    buyer: document.getElementById('s-buyer').value.trim(),
+    note:  document.getElementById('s-note').value.trim()
+  });
+  setSyncStatus('online');
+  document.getElementById('s-prod').value  = '';
+  document.getElementById('s-qty').value   = '1';
+  ['s-price','s-cost','s-fee','s-buyer','s-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('s-preview').style.display = 'none';
+};
+
+window.delSale = async function(key) {
+  if (!confirm('ลบรายการนี้?')) return;
+  setSyncStatus('syncing');
+  await remove(ref(db, 'roblox/sales/' + key));
+  setSyncStatus('online');
+};
+
+window.renderSales = function() {
+  const tb = document.getElementById('s-tbody');
+  document.getElementById('s-count').textContent = sales.length + ' รายการ';
+  fillProdSelect();
+  if (!sales.length) { tb.innerHTML = '<tr><td colspan="11"><div class="empty"><div class="empty-icon">📝</div><div class="empty-text">ยังไม่มีรายการ</div></div></td></tr>'; return; }
+  tb.innerHTML = [...sales].reverse().map((s, i) => `
+    <tr>
+      <td style="color:var(--muted)">${sales.length-i}</td>
+      <td style="color:var(--muted);white-space:nowrap">${s.date||'—'}</td>
+      <td style="font-weight:500">${s.productName}</td>
+      <td><span class="badge badge-gray">${mapName(s.mapId)}</span></td>
+      <td class="mono">${s.qty}</td>
+      <td class="num-neutral">${baht(s.revenue)}</td>
+      <td class="num-neg">- ${baht(s.totalCost)}</td>
+      <td class="num-neg">- ${baht(s.totalFee)}</td>
+      <td class="${s.net>=0?'num-pos':'num-neg'}">${baht(s.net)}</td>
+      <td style="color:var(--muted)">${s.buyer||'—'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="delSale('${s._key}')">ลบ</button></td>
+    </tr>`).join('');
+};
+
+// ── SUMMARY ──
+window.calcQuick = function() {
+  const price = parseFloat(document.getElementById('c-price').value)||0;
+  const cost  = parseFloat(document.getElementById('c-cost').value) ||0;
+  const fee   = parseFloat(document.getElementById('c-fee').value)  ||0;
+  const qty   = parseFloat(document.getElementById('c-qty').value)  ||1;
+  const rev = price*qty, tc = cost*qty, tf = fee*qty, net = rev-tc-tf;
+  const margin = rev>0 ? ((net/rev)*100).toFixed(1) : 0;
+  document.getElementById('c-revenue').textContent    = baht(rev);
+  document.getElementById('c-total-cost').textContent = '- ' + baht(tc);
+  document.getElementById('c-total-fee').textContent  = '- ' + baht(tf);
+  document.getElementById('c-profit').textContent     = baht(net);
+  document.getElementById('c-profit').className       = net>=0 ? 'num-pos' : 'num-neg';
+  document.getElementById('c-margin').textContent     = margin + '%';
+};
+
+window.renderSummary = function() {
+  const box = document.getElementById('sum-overall');
+  if (!sales.length) {
+    box.innerHTML = '<div class="empty"><div class="empty-icon">📊</div><div class="empty-text">ยังไม่มีข้อมูล</div></div>';
+    document.getElementById('sum-bymap').innerHTML = '<div class="empty"><div class="empty-icon">🗺️</div><div class="empty-text">ยังไม่มีข้อมูล</div></div>';
+    return;
+  }
+  const rev = sales.reduce((s,x)=>s+x.revenue,0);
+  const tc  = sales.reduce((s,x)=>s+x.totalCost,0);
+  const tf  = sales.reduce((s,x)=>s+x.totalFee,0);
+  const net = sales.reduce((s,x)=>s+x.net,0);
+  const margin = rev>0 ? ((net/rev)*100).toFixed(1) : 0;
+  box.innerHTML = `
+    <div class="summary-row"><span style="color:var(--muted)">ยอดขายรวม</span><span class="num-neutral">${baht(rev)}</span></div>
+    <div class="summary-row"><span style="color:var(--muted)">หัก ต้นทุนรวม</span><span class="num-neg">- ${baht(tc)}</span></div>
+    <div class="summary-row"><span style="color:var(--muted)">หัก ค่าธรรมเนียมรวม</span><span class="num-neg">- ${baht(tf)}</span></div>
+    <div class="summary-row total"><span>กำไรสุทธิรวม</span><span class="${net>=0?'num-pos':'num-neg'}">${baht(net)}</span></div>
+    <div class="summary-row"><span style="color:var(--muted)">% กำไรเฉลี่ย</span><span class="mono" style="color:var(--accent)">${margin}%</span></div>
+    <div class="summary-row"><span style="color:var(--muted)">จำนวนรายการ</span><span class="mono">${sales.length} รายการ</span></div>`;
+
+  const byMap = {};
+  sales.forEach(s => {
+    const k = s.mapId||0;
+    if (!byMap[k]) byMap[k] = { name:mapName(s.mapId), rev:0,tc:0,tf:0,net:0,count:0 };
+    byMap[k].rev+=s.revenue; byMap[k].tc+=s.totalCost; byMap[k].tf+=s.totalFee; byMap[k].net+=s.net; byMap[k].count++;
+  });
+  document.getElementById('sum-bymap').innerHTML = `
+    <div class="table-wrap"><table>
+      <thead><tr><th>แมพ</th><th>รายการ</th><th>ยอดขาย</th><th>ต้นทุน</th><th>ค่าธรรมเนียม</th><th>กำไรสุทธิ</th><th>% กำไร</th></tr></thead>
+      <tbody>${Object.values(byMap).map(r => {
+        const m = r.rev>0 ? ((r.net/r.rev)*100).toFixed(1) : 0;
+        return `<tr>
+          <td style="font-weight:500">${r.name}</td>
+          <td class="mono">${r.count}</td>
+          <td class="num-neutral">${baht(r.rev)}</td>
+          <td class="num-neg">- ${baht(r.tc)}</td>
+          <td class="num-neg">- ${baht(r.tf)}</td>
+          <td class="${r.net>=0?'num-pos':'num-neg'}">${baht(r.net)}</td>
+          <td class="mono" style="color:var(--accent)">${m}%</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+};
+
+// ── DASHBOARD ──
+window.renderDashboard = function() {
+  const rev = sales.reduce((s,x)=>s+x.revenue,0);
+  const tc  = sales.reduce((s,x)=>s+x.totalCost,0);
+  const tf  = sales.reduce((s,x)=>s+x.totalFee,0);
+  const net = sales.reduce((s,x)=>s+x.net,0);
+  const margin = rev>0 ? ((net/rev)*100).toFixed(1) : 0;
+  document.getElementById('d-revenue').textContent = baht(rev);
+  document.getElementById('d-cost').textContent    = baht(tc);
+  document.getElementById('d-fee').textContent     = baht(tf);
+  document.getElementById('d-profit').textContent  = baht(net);
+  document.getElementById('d-maps').textContent     = maps.length + ' แมพ';
+  document.getElementById('d-products').textContent = products.length + ' ชิ้น';
+  document.getElementById('d-sales').textContent    = sales.length + ' รายการ';
+  document.getElementById('d-margin').textContent   = margin + '%';
+  const last5 = [...sales].reverse().slice(0,5);
+  document.getElementById('d-recent').innerHTML = !last5.length
+    ? '<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">ยังไม่มีรายการ</div></div>'
+    : last5.map(s => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-weight:500;font-size:13.5px">${s.productName}</div>
+          <div style="font-size:11.5px;color:var(--muted)">${s.date||'—'} · ${mapName(s.mapId)}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="${s.net>=0?'num-pos':'num-neg'}" style="font-size:14px">${baht(s.net)}</div>
+          <div style="font-size:11px;color:var(--muted)">ขาย ${baht(s.revenue)}</div>
+        </div>
+      </div>`).join('');
+};
+
+// ── NAV ──
+window.go = function(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('nav-'+page).classList.add('active');
+  if (page==='products') fillMapSelect('p-map');
+  if (page==='sales')    { fillProdSelect(); document.getElementById('s-date').valueAsDate = new Date(); }
+  if (page==='summary')  renderSummary();
+};
+
+// ── INIT ──
+document.getElementById('s-date').valueAsDate = new Date();
+
+</script>
+</body>
+</html>
