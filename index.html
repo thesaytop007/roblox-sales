@@ -1048,6 +1048,13 @@ window.go=function(page){
 
 // ── INIT ──
 document.getElementById('s-date').valueAsDate=new Date();
+
+// Fix: expose all functions to window (module scope workaround)
+const _fns={go,addMap,delMap,addProduct,delProduct,openEditModal,closeEditModal,
+  saveEditProduct,onProdSelect,updatePreview,addSale,delSale,saveSellers,
+  fetchRate,setManualRate,setChartPeriod,calcQuick,calcWithdraw,
+  addBalance,subtractBalance,delWalletEntry,toggleTheme,renderChart};
+Object.assign(window,_fns);
 </script>
 </body>
 </html>
