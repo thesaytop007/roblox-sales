@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+<title>กระดานผู้สนับสนุนสูงสุด</title>
+<style>
+:root{
+  --gold:#E8B84B;
+  --gold-deep:#B8862E;
+  --gold-pale:#F6E2A0;
+  --ink:#1C1A14;
+  --ink-soft:#2A2418;
+  --paper:#FAF6EC;
+  --paper-dim:#F0E9D8;
+  --line:#3A331F;
+  --muted:#9C9078;
+  --crimson:#9A2E2E;
+  --crimson-soft:#E89A9A;
+  --font-display:'Cinzel', Georgia, serif;
+  --font-body:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Thai', system-ui, sans-serif;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:var(--font-body);
+  background:radial-gradient(ellipse at top, var(--ink-soft) 0%, var(--ink) 60%);
+  color:var(--paper);
+  min-height:100vh;
+  -webkit-tap-highlight-color:transparent;
+}
+button,input{font-family:inherit;}
+input{-webkit-appearance:none;appearance:none;}
+
+#root{
+  min-height:100vh;
+  padding:calc(20px + var(--safe-top)) 14px calc(90px + var(--safe-bottom));
+}
+.wrap{max-width:720px;margin:0 auto;}
+
+/* header */
+.hero{text-align:center;margin-bottom:20px;}
+.crown{font-size:30px;display:block;margin-bottom:4px;filter:drop-shadow(0 2px 6px rgba(232,184,75,.5));}
+.hero h1{
+  font-family:var(--font-display);
+  font-size:clamp(22px,6vw,30px);
+  letter-spacing:.04em;
+  margin:0;
+  background:linear-gradient(180deg,var(--gold-pale),var(--gold) 60%,var(--gold-deep));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero p{color:var(--muted);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin:4px 0 0;}
+
+/* connection banner */
+.banner{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(154,46,46,.15);border:1px solid var(--crimson);
+  border-radius:10px;padding:10px 12px;margin-bottom:16px;font-size:12px;color:var(--crimson-soft);
+}
+.banner.ok{background:rgba(110,160,90,.15);border-color:#6EA05A;color:#B8E0A0;}
+.banner .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0;}
+
+/* tabs */
+.tabs{
+  position:sticky;top:0;z-index:10;
+  display:flex;gap:4px;background:rgba(20,18,12,.85);backdrop-filter:blur(6px);
+  border:1px solid var(--line);border-radius:10px;padding:4px;margin-bottom:18px;
+}
+.tab{
+  flex:1;text-align:center;padding:11px 6px;border-radius:8px;cursor:pointer;
+  font-weight:600;font-size:13px;color:var(--muted);transition:.15s;
+  user-select:none;border:none;background:none;
+}
+.tab.active{background:linear-gradient(180deg,var(--gold),var(--gold-deep));color:#1C1A14;}
+
+/* leaderboard list */
+.list{display:flex;flex-direction:column;gap:8px;}
+.row{
+  display:flex;align-items:center;gap:12px;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+  border:1px solid var(--line);
+  border-radius:12px;padding:11px 14px;
+  position:relative;overflow:hidden;
+  min-width:0;
+}
+.row.rank-1{border-color:var(--gold);box-shadow:0 0 0 1px rgba(232,184,75,.25);}
+.rank{
+  font-family:var(--font-display);
+  width:28px;text-align:center;font-size:17px;color:var(--gold);flex-shrink:0;
+}
+.rank-1 .rank{font-size:20px;}
+.avatar{
+  width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0;
+  border:2px solid var(--gold-deep);background:var(--paper-dim);
+}
+.avatar.placeholder{display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:15px;color:var(--ink);}
+.info{flex:1;min-width:0;}
+.name{font-weight:700;font-size:14px;color:var(--paper);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sub{font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.amount{font-family:var(--font-display);font-size:15px;color:var(--gold);flex-shrink:0;white-space:nowrap;text-align:right;}
+.amount small{font-size:9px;color:var(--muted);display:block;font-family:var(--font-body);letter-spacing:.04em;}
+
+.empty{text-align:center;padding:50px 20px;color:#8a7f64;}
+.empty .big{font-size:38px;display:block;margin-bottom:10px;}
+
+.skel{display:flex;flex-direction:column;gap:8px;}
+.skel-row{height:64px;border-radius:12px;background:linear-gradient(90deg,rgba(255,255,255,.03),rgba(255,255,255,.07),rgba(255,255,255,.03));background-size:200% 100%;animation:shimmer 1.4s infinite;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+/* form */
+.card{
+  background:rgba(255,255,255,.04);border:1px solid var(--line);
+  border-radius:14px;padding:18px;
+}
+.card h2{font-family:var(--font-display);font-size:16px;color:var(--gold);margin:0 0 14px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px;letter-spacing:.03em;text-transform:uppercase;}
+.field input{
+  width:100%;padding:13px 12px;border-radius:9px;border:1px solid var(--line);
+  background:rgba(0,0,0,.25);color:var(--paper);font-size:16px;
+}
+.field input:focus{outline:2px solid var(--gold);outline-offset:1px;}
+.hint{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.5;}
+.avatar-row{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.avatar-preview{
+  width:58px;height:58px;border-radius:50%;object-fit:cover;border:2px solid var(--gold-deep);
+  background:var(--paper-dim);display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:20px;color:var(--ink);flex-shrink:0;overflow:hidden;
+}
+.avatar-preview img{width:100%;height:100%;object-fit:cover;}
+.upload-btn{
+  font-size:13px;padding:10px 14px;border-radius:8px;border:1px solid var(--gold-deep);
+  background:transparent;color:var(--gold);cursor:pointer;font-weight:600;
+}
+.actions{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;}
+.btn{
+  padding:14px 20px;border-radius:9px;border:none;font-weight:700;font-size:15px;cursor:pointer;
+  flex:1;min-width:140px;
+}
+.btn-primary{background:linear-gradient(180deg,var(--gold),var(--gold-deep));color:#1C1A14;}
+.btn-primary:disabled{opacity:.55;}
+.btn-danger{background:transparent;border:1px solid var(--crimson);color:var(--crimson-soft);flex:0;}
+.note{font-size:11.5px;color:#8a7f64;margin-top:10px;line-height:1.5;}
+
+.toast{
+  position:fixed;bottom:calc(16px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(8px);
+  background:var(--gold);color:#1C1A14;padding:11px 18px;border-radius:9px;
+  font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.4);
+  opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;
+  max-width:92vw;text-align:center;word-break:break-word;z-index:100;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.err{background:var(--crimson);color:#FAF6EC;}
+
+.loading-screen{text-align:center;color:#8a7f64;padding:60px 20px;font-size:13px;}
+.spinner{
+  width:22px;height:22px;border:2px solid var(--line);border-top-color:var(--gold);
+  border-radius:50%;margin:0 auto 12px;animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+@media (min-width:560px){
+  .row{padding:13px 16px;}
+  .avatar{width:48px;height:48px;}
+  .name{font-size:15px;}
+  .amount{font-size:17px;}
+}
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="loading-screen"><div class="spinner"></div>กำลังเชื่อมต่อ...</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, setDoc, deleteDoc, collection,
+  onSnapshot, query
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ============================================================
+   ตั้งค่า Firebase ของคุณที่นี่
+   วิธีหา: Firebase Console > Project settings > General >
+   เลื่อนลงมาที่ "Your apps" > เลือกแอป Web (</>) > Config
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyBRDVo3RiCKH4iKgwR1iAVyxGRps-6cKr0",
+  authDomain: "donater-723c7.firebaseapp.com",
+  projectId: "donater-723c7",
+  storageBucket: "donater-723c7.firebasestorage.app",
+  messagingSenderId: "523043455129",
+  appId: "1:523043455129:web:d004355c0a409f64e27808"
+};
+
+const CONFIG_IS_PLACEHOLDER = false;
+
+let db = null;
+let firebaseError = null;
+if(!CONFIG_IS_PLACEHOLDER){
+  try{
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+  }catch(e){
+    firebaseError = e.message;
+  }
+}
+
+const DONORS_COL = "donors";       // doc: { name, photo, note }
+const DONATIONS_COL = "donations"; // doc: { donorId, amount, createdAt }
+const MY_ID_LS_KEY = "donor_my_id_v1";
+
+function fmtTHB(n){ return new Intl.NumberFormat('th-TH').format(n); }
+function initials(name){
+  if(!name) return '?';
+  const parts = name.trim().split(/\s+/);
+  return parts.length>1 ? (parts[0][0]+parts[1][0]).toUpperCase() : parts[0].slice(0,2).toUpperCase();
+}
+function colorFromName(name){
+  const colors=['#E8B84B','#C9885A','#9A6B9A','#6B9A8A','#9A2E2E','#5A7A9A'];
+  let sum=0; for(const c of (name||'?')) sum+=c.charCodeAt(0);
+  return colors[sum%colors.length];
+}
+function genId(prefix){ return prefix+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,8); }
+
+function getMyId(){
+  try{ return localStorage.getItem(MY_ID_LS_KEY); }catch(e){ return null; }
+}
+function setMyIdStored(id){
+  try{ localStorage.setItem(MY_ID_LS_KEY, id); }catch(e){}
+}
+function clearMyIdStored(){
+  try{ localStorage.removeItem(MY_ID_LS_KEY); }catch(e){}
+}
+
+function resizeImage(file){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload=()=>{
+      const img = new Image();
+      img.onload=()=>{
+        const maxSize=220;
+        let w=img.width, hh=img.height;
+        if(w>hh && w>maxSize){ hh=Math.round(hh*maxSize/w); w=maxSize; }
+        else if(hh>=w && hh>maxSize){ w=Math.round(w*maxSize/hh); hh=maxSize; }
+        const canvas=document.createElement('canvas');
+        canvas.width=w; canvas.height=hh;
+        canvas.getContext('2d').drawImage(img,0,0,w,hh);
+        resolve(canvas.toDataURL('image/jpeg',0.8));
+      };
+      img.onerror=()=>reject(new Error('อ่านรูปภาพไม่สำเร็จ'));
+      img.src=reader.result;
+    };
+    reader.onerror=()=>reject(new Error('อ่านไฟล์ไม่สำเร็จ'));
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ---------------- render state ---------------- */
+const state = {
+  tab: 'board',
+  donors: {},       // id -> {name,photo,note}
+  donations: {},     // id -> {donorId,amount,createdAt}
+  loaded: false,
+  myId: getMyId(),
+  toast: null,       // {msg, type}
+  saving: false,
+  form: { name:'', amount:'', note:'', photo:'' },
+  connOk: !!db,
+};
+
+let toastTimer = null;
+function showToast(msg, type='ok'){
+  state.toast = {msg, type};
+  render();
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ state.toast=null; render(); }, 4500);
+}
+
+function computeTotals(){
+  const sums = {};
+  const counts = {};
+  Object.values(state.donations).forEach(d=>{
+    sums[d.donorId] = (sums[d.donorId]||0) + d.amount;
+    counts[d.donorId] = (counts[d.donorId]||0) + 1;
+  });
+  return Object.entries(state.donors)
+    .map(([id,d])=>({id, ...d, amount: sums[id]||0, count: counts[id]||0}))
+    .filter(d=>d.count>0)
+    .sort((a,b)=>b.amount-a.amount);
+}
+
+function findExistingByName(typedName){
+  const t = typedName.trim().toLowerCase();
+  return Object.entries(state.donors).find(([id,d])=>d.name.trim().toLowerCase()===t);
+}
+
+/* ---------------- firestore actions ---------------- */
+async function saveDonation(){
+  const trimmedName = state.form.name.trim();
+  const amt = parseFloat(state.form.amount);
+  if(!trimmedName){ showToast('กรุณาใส่ชื่อ','err'); return; }
+  if(state.form.amount==='' || isNaN(amt) || amt<=0){ showToast('กรุณาใส่จำนวนเงินที่โดเนทครั้งนี้ให้ถูกต้อง','err'); return; }
+  if(state.saving) return;
+  if(!db){ showToast('ยังไม่ได้ตั้งค่า Firebase กรุณาดูคำแนะนำด้านล่างฟอร์ม','err'); return; }
+
+  state.saving = true; render();
+  try{
+    let id = state.myId;
+    if(!id){
+      const existing = findExistingByName(trimmedName);
+      if(existing) id = existing[0];
+    }
+    if(!id){
+      id = genId('d');
+    }
+
+    const existingDonor = state.donors[id];
+    await setDoc(doc(db, DONORS_COL, id), {
+      name: trimmedName,
+      note: state.form.note.trim(),
+      photo: state.form.photo || (existingDonor ? existingDonor.photo||'' : '')
+    });
+
+    const donationId = genId('don');
+    await setDoc(doc(db, DONATIONS_COL, donationId), {
+      donorId: id,
+      amount: amt,
+      createdAt: Date.now()
+    });
+
+    if(state.myId !== id){
+      state.myId = id;
+      setMyIdStored(id);
+    }
+    state.form.amount = '';
+    state.saving = false;
+    state.tab = 'board';
+    render();
+    showToast('บันทึกยอดโดเนทแล้ว ✓');
+  }catch(e){
+    state.saving = false;
+    render();
+    showToast('บันทึกไม่สำเร็จ: '+(e && e.message ? e.message : String(e)), 'err');
+  }
+}
+
+async function deleteMyProfile(){
+  if(!state.myId) return;
+  if(!confirm('ลบโปรไฟล์และยอดโดเนทของคุณออกจากกระดานทั้งหมดหรือไม่?')) return;
+  if(!db){ showToast('ยังไม่ได้ตั้งค่า Firebase','err'); return; }
+  state.saving = true; render();
+  try{
+    await deleteDoc(doc(db, DONORS_COL, state.myId));
+    const myDonationIds = Object.entries(state.donations)
+      .filter(([id,d])=>d.donorId===state.myId)
+      .map(([id])=>id);
+    await Promise.all(myDonationIds.map(id=>deleteDoc(doc(db, DONATIONS_COL, id))));
+
+    clearMyIdStored();
+    state.myId = null;
+    state.form = { name:'', amount:'', note:'', photo:'' };
+    state.saving = false;
+    state.tab = 'board';
+    render();
+    showToast('ลบโปรไฟล์แล้ว');
+  }catch(e){
+    state.saving = false;
+    render();
+    showToast('ลบไม่สำเร็จ: '+(e && e.message ? e.message : String(e)), 'err');
+  }
+}
+
+function subscribeRealtime(){
+  if(!db) return;
+  onSnapshot(query(collection(db, DONORS_COL)), (snap)=>{
+    const map = {};
+    snap.forEach(d=>{ map[d.id] = d.data(); });
+    state.donors = map;
+    state.loaded = true;
+    syncFormWithMyProfile();
+    render();
+  }, (err)=>{
+    state.loaded = true;
+    state.connOk = false;
+    render();
+    showToast('เชื่อมต่อฐานข้อมูลไม่ได้: '+(err.message||err), 'err');
+  });
+
+  onSnapshot(query(collection(db, DONATIONS_COL)), (snap)=>{
+    const map = {};
+    snap.forEach(d=>{ map[d.id] = d.data(); });
+    state.donations = map;
+    render();
+  });
+}
+
+function syncFormWithMyProfile(){
+  if(state.myId && state.donors[state.myId]){
+    const mine = state.donors[state.myId];
+    if(!state.form.name) state.form.name = mine.name||'';
+    if(!state.form.note) state.form.note = mine.note||'';
+    if(!state.form.photo) state.form.photo = mine.photo||'';
+  }
+}
+
+/* ---------------- event handlers exposed to inline DOM ---------------- */
+window.__setTab = (t)=>{ state.tab = t; render(); };
+window.__onNameInput = (v)=>{
+  state.form.name = v;
+  if(!state.myId){
+    const existing = findExistingByName(v);
+    if(existing){
+      const [id, d] = existing;
+      if(d.photo) state.form.photo = d.photo;
+      if(d.note) state.form.note = d.note;
+    }
+  }
+  render();
+};
+window.__onAmountInput = (v)=>{
+  state.form.amount = v.replace(/[^0-9.]/g,'');
+  render();
+};
+window.__onNoteInput = (v)=>{ state.form.note = v; render(); };
+window.__onFileChange = async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  if(file.size > 8*1024*1024){ showToast('ไฟล์รูปใหญ่เกินไป (จำกัด 8MB)','err'); return; }
+  try{
+    const dataUrl = await resizeImage(file);
+    state.form.photo = dataUrl;
+    render();
+  }catch(err){
+    showToast(err.message,'err');
+  }
+};
+window.__save = saveDonation;
+window.__delete = deleteMyProfile;
+window.__triggerFile = ()=>{ document.getElementById('file-input').click(); };
+
+/* ---------------- render ---------------- */
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function avatarHtml(name, photo, size){
+  if(photo){
+    return `<img class="avatar" style="width:${size}px;height:${size}px" src="${photo}" alt="">`;
+  }
+  const color = colorFromName(name);
+  const fs = Math.round(size*0.38);
+  return `<div class="avatar placeholder" style="width:${size}px;height:${size}px;background:${color};font-size:${fs}px">${escapeHtml(initials(name))}</div>`;
+}
+
+function renderBoard(){
+  if(!state.loaded){
+    return `<div class="skel">
+      <div class="skel-row"></div><div class="skel-row"></div><div class="skel-row"></div>
+    </div>`;
+  }
+  const totals = computeTotals();
+  if(totals.length===0){
+    return `<div class="empty"><span class="big">🏆</span><div>ยังไม่มีผู้โดเนท เป็นคนแรกที่ขึ้นกระดานสิ!</div></div>`;
+  }
+  const medal = i => i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1);
+  return `<div class="list">${totals.map((d,i)=>`
+    <div class="row ${i===0?'rank-1':''}">
+      <div class="rank">${medal(i)}</div>
+      ${avatarHtml(d.name, d.photo, i===0?52:44)}
+      <div class="info">
+        <div class="name">${escapeHtml(d.name)}${d.id===state.myId?' (คุณ)':''}</div>
+        <div class="sub">${d.note?escapeHtml(d.note)+' · ':''}โดเนท ${d.count} ครั้ง</div>
+      </div>
+      <div class="amount">฿${fmtTHB(d.amount)}<small>บาท</small></div>
+    </div>
+  `).join('')}</div>`;
+}
+
+function renderForm(){
+  const f = state.form;
+  const donorOptions = Object.values(state.donors).map(d=>`<option value="${escapeHtml(d.name)}">`).join('');
+  let summary = '';
+  if(state.myId && state.donors[state.myId]){
+    const sum = Object.values(state.donations).filter(x=>x.donorId===state.myId).reduce((s,x)=>s+x.amount,0);
+    const cnt = Object.values(state.donations).filter(x=>x.donorId===state.myId).length;
+    summary = `<div class="hint">ยอดสะสมปัจจุบัน ฿${fmtTHB(sum)} (${cnt} ครั้ง) — กรอกแค่ยอดที่โดเนทเพิ่มรอบนี้ ระบบจะบวกรวมให้เอง</div>`;
+  }
+  const configWarning = CONFIG_IS_PLACEHOLDER ? `
+    <div class="banner" style="margin-top:14px;">
+      <span class="dot"></span>
+      <span>ยังไม่ได้ตั้งค่า Firebase — แก้ไขตัวแปร firebaseConfig ในโค้ดก่อนใช้งานจริง</span>
+    </div>` : '';
+
+  return `
+    <div class="card">
+      <h2>${state.myId?'แก้ไขยอดโดเนทของฉัน':'เพิ่มยอดโดเนทของฉัน'}</h2>
+      <div class="avatar-row">
+        <div class="avatar-preview" style="${f.photo?'':'background:'+colorFromName(f.name)}">
+          ${f.photo ? `<img src="${f.photo}" alt="">` : escapeHtml(initials(f.name))}
+        </div>
+        <button class="upload-btn" onclick="window.__triggerFile()">อัปโหลดรูปภาพ</button>
+        <input id="file-input" type="file" accept="image/*" style="display:none" onchange="window.__onFileChange(event)">
+      </div>
+      <div class="field">
+        <label>ชื่อผู้โดเนท</label>
+        <input value="${escapeHtml(f.name)}" oninput="window.__onNameInput(this.value)"
+               placeholder="เช่น คุณสมชาย ใจดี" maxlength="50" list="donor-names" autocomplete="off">
+        <datalist id="donor-names">${donorOptions}</datalist>
+      </div>
+      <div class="field">
+        <label>จำนวนเงินที่โดเนทครั้งนี้ (บาท)</label>
+        <input value="${escapeHtml(f.amount)}" oninput="window.__onAmountInput(this.value)"
+               placeholder="เช่น 500" inputmode="decimal">
+        ${summary}
+      </div>
+      <div class="field">
+        <label>ข้อความ / หมายเหตุ (ไม่บังคับ)</label>
+        <input value="${escapeHtml(f.note)}" oninput="window.__onNoteInput(this.value)"
+               placeholder="เช่น ขอให้โครงการสำเร็จ" maxlength="60">
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="window.__save()" ${state.saving?'disabled':''}>
+          ${state.saving?'กำลังบันทึก...':'บันทึกยอดโดเนท'}
+        </button>
+        ${state.myId?`<button class="btn btn-danger" onclick="window.__delete()" ${state.saving?'disabled':''}>ลบโปรไฟล์</button>`:''}
+      </div>
+      <p class="note">พิมพ์ชื่อที่เคยใส่ไว้แล้วระบบจะดึงรูปและข้อมูลเดิมมาให้อัตโนมัติ ทุกครั้งที่บันทึก ยอดเงินจะถูกบวกรวมเข้ายอดสะสมของชื่อนั้นบนกระดาน</p>
+      ${configWarning}
+    </div>
+  `;
+}
+
+function render(){
+  const banner = CONFIG_IS_PLACEHOLDER
+    ? `<div class="banner"><span class="dot"></span>ยังไม่ได้เชื่อมต่อฐานข้อมูล — ดูคำแนะนำตั้งค่าด้านล่าง</div>`
+    : (firebaseError
+        ? `<div class="banner"><span class="dot"></span>เชื่อมต่อ Firebase ล้มเหลว: ${escapeHtml(firebaseError)}</div>`
+        : (state.connOk
+            ? `<div class="banner ok"><span class="dot"></span>เชื่อมต่อฐานข้อมูลแล้ว ข้อมูลจะอัปเดตเรียลไทม์</div>`
+            : `<div class="banner"><span class="dot"></span>เชื่อมต่อฐานข้อมูลไม่ได้ ตรวจสอบ Firestore rules และการเชื่อมต่ออินเทอร์เน็ต</div>`));
+
+  document.getElementById('root').innerHTML = `
+    <div class="wrap">
+      <div class="hero">
+        <span class="crown">👑</span>
+        <h1>กระดานผู้สนับสนุนสูงสุด</h1>
+        <p>Top Donors Leaderboard</p>
+      </div>
+      ${banner}
+      <div class="tabs">
+        <button class="tab ${state.tab==='board'?'active':''}" onclick="window.__setTab('board')">อันดับผู้โดเนท</button>
+        <button class="tab ${state.tab==='edit'?'active':''}" onclick="window.__setTab('edit')">เพิ่มยอดโดเนทของฉัน</button>
+      </div>
+      ${state.tab==='board' ? renderBoard() : renderForm()}
+    </div>
+    <div class="toast ${state.toast?'show':''} ${state.toast&&state.toast.type==='err'?'err':''}">${state.toast?escapeHtml(state.toast.msg):''}</div>
+  `;
+}
+
+/* ---------------- boot ---------------- */
+render();
+if(db){
+  subscribeRealtime();
+}else{
+  state.loaded = true;
+  render();
+}
+</script>
+</body>
+</html>
