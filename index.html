@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+<title>กระดานผู้สนับสนุนสูงสุด</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap');
+
+:root{
+  --gold:#F0C766;
+  --gold-deep:#9A6B1E;
+  --gold-pale:#FFEDB8;
+  --gold-glow:rgba(240,199,102,.55);
+  --silver:#E4E9EF;
+  --silver-deep:#7C8794;
+  --silver-glow:rgba(196,206,217,.45);
+  --bronze:#E3A06B;
+  --bronze-deep:#8C552C;
+  --bronze-glow:rgba(205,138,82,.45);
+  --ink:#0A0907;
+  --ink-soft:#161208;
+  --ink-card:#1A1610;
+  --velvet:#2B0F12;
+  --paper:#FBF7EC;
+  --paper-dim:#EDE3C4;
+  --line:#3D3520;
+  --line-bright:#5C4E26;
+  --muted:#9A8D6E;
+  --crimson:#A23838;
+  --crimson-soft:#EBA3A3;
+  --green:#6FA868;
+  --green-soft:#BFE0AE;
+  --font-display:'Cinzel', Georgia, serif;
+  --font-script:'Cormorant Garamond', Georgia, serif;
+  --font-body:'Noto Sans Thai', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:var(--font-body);
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(240,199,102,.16), transparent 70%),
+    radial-gradient(ellipse 100% 60% at 50% 110%, rgba(80,20,10,.25), transparent 60%),
+    repeating-linear-gradient(115deg, rgba(255,255,255,.012) 0px, transparent 2px, transparent 7px),
+    linear-gradient(180deg, var(--ink-soft) 0%, var(--ink) 45%, var(--velvet) 130%);
+  background-attachment:fixed;
+  color:var(--paper);
+  min-height:100vh;
+  -webkit-tap-highlight-color:transparent;
+  overflow-x:hidden;
+}
+button,input{font-family:inherit;}
+input{-webkit-appearance:none;appearance:none;}
+img{-webkit-user-drag:none;}
+
+#root{min-height:100vh;position:relative;}
+.app{
+  min-height:100vh;
+  padding:calc(22px + var(--safe-top)) 14px calc(40px + var(--safe-bottom));
+  position:relative;
+}
+.wrap{max-width:760px;margin:0 auto;position:relative;z-index:1;}
+
+/* header */
+.hero{text-align:center;margin-bottom:22px;position:relative;}
+.crown{
+  font-size:36px;display:inline-block;margin-bottom:4px;
+  filter:drop-shadow(0 0 18px var(--gold-glow)) drop-shadow(0 2px 4px rgba(0,0,0,.6));
+  animation:crownFloat 4s ease-in-out infinite;
+}
+@keyframes crownFloat{0%,100%{transform:translateY(0) rotate(-2deg);}50%{transform:translateY(-4px) rotate(2deg);}}
+.hero h1{
+  font-family:var(--font-display);
+  font-weight:900;
+  font-size:clamp(24px,6.5vw,34px);
+  letter-spacing:.04em;
+  margin:0;
+  background:linear-gradient(180deg,#FFF6DC 0%,var(--gold-pale) 30%,var(--gold) 60%,var(--gold-deep) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 0 30px var(--gold-glow);
+  position:relative;
+}
+.hero .rule{
+  width:120px;height:1px;margin:10px auto 0;
+  background:linear-gradient(90deg,transparent,var(--gold-deep),var(--gold),var(--gold-deep),transparent);
+}
+.hero p{color:var(--muted);font-family:var(--font-script);font-style:italic;font-size:13px;letter-spacing:.22em;text-transform:uppercase;margin:8px 0 0;}
+
+/* banner */
+.banner{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(162,56,56,.14);border:1px solid var(--crimson);
+  border-radius:10px;padding:9px 12px;margin-bottom:14px;font-size:12px;color:var(--crimson-soft);
+}
+.banner.ok{background:rgba(111,168,104,.12);border-color:rgba(111,168,104,.4);color:var(--green-soft);}
+.banner .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0;box-shadow:0 0 8px currentColor;}
+
+/* tabs */
+.tabs{
+  position:sticky;top:8px;z-index:20;
+  display:flex;gap:4px;background:rgba(10,9,7,.82);backdrop-filter:blur(10px);
+  border:1px solid var(--line-bright);border-radius:12px;padding:5px;margin-bottom:22px;
+  box-shadow:0 10px 30px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.tab{
+  flex:1;text-align:center;padding:12px 6px;border-radius:9px;cursor:pointer;
+  font-weight:700;font-size:13px;color:var(--muted);transition:.2s;
+  user-select:none;border:none;background:none;letter-spacing:.02em;
+}
+.tab.active{
+  background:linear-gradient(180deg,var(--gold-pale),var(--gold) 45%,var(--gold-deep));
+  color:#241A05;box-shadow:0 4px 18px rgba(240,199,102,.4), inset 0 1px 0 rgba(255,255,255,.5);
+}
+
+/* ---------------- podium ---------------- */
+.podium-wrap{margin-bottom:30px;position:relative;padding-top:10px;}
+.podium-wrap::before{
+  content:"";position:absolute;top:-30px;left:50%;transform:translateX(-50%);
+  width:90%;max-width:480px;height:220px;
+  background:radial-gradient(ellipse 50% 100% at 50% 0%, rgba(240,199,102,.18), transparent 70%);
+  pointer-events:none;z-index:0;
+}
+.podium{
+  display:flex;align-items:flex-end;justify-content:center;gap:10px;
+  padding:0 4px;position:relative;z-index:1;
+}
+.pod-col{display:flex;flex-direction:column;align-items:center;flex:1;max-width:170px;min-width:0;}
+.pod-card{
+  display:flex;flex-direction:column;align-items:center;width:100%;margin-bottom:12px;
+  position:relative;
+}
+.pod-avatar-ring{
+  border-radius:50%;padding:3.5px;margin-bottom:10px;position:relative;
+}
+.pod-avatar-ring::before{
+  content:"";position:absolute;inset:-7px;border-radius:50%;
+  border:1px solid currentColor;opacity:.35;
+}
+.pod-avatar-ring.gold{background:conic-gradient(from 0deg,var(--gold-pale),var(--gold-deep),var(--gold),var(--gold-pale));color:var(--gold);box-shadow:0 0 26px var(--gold-glow),0 0 50px rgba(240,199,102,.25);animation:ringSpin 6s linear infinite;}
+.pod-avatar-ring.silver{background:conic-gradient(from 0deg,#fff,var(--silver-deep),var(--silver),#fff);color:var(--silver);box-shadow:0 0 18px var(--silver-glow);animation:ringSpin 7s linear infinite;}
+.pod-avatar-ring.bronze{background:conic-gradient(from 0deg,#F0C49A,var(--bronze-deep),var(--bronze),#F0C49A);color:var(--bronze);box-shadow:0 0 18px var(--bronze-glow);animation:ringSpin 8s linear infinite;}
+@keyframes ringSpin{to{filter:hue-rotate(0deg);}}
+.pod-medal{
+  position:absolute;bottom:-2px;right:-6px;font-size:20px;z-index:2;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.6));
+  animation:medalPop .5s cubic-bezier(.34,1.56,.64,1) backwards;
+}
+.pod-avatar{border-radius:50%;display:block;object-fit:cover;background:var(--paper-dim);position:relative;z-index:1;}
+.pod-avatar.placeholder{display:flex;align-items:center;justify-content:center;font-family:var(--font-display);color:var(--ink);font-weight:700;}
+.pod-name{font-weight:700;font-size:13.5px;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px;color:var(--paper);}
+.pod-amount{font-family:var(--font-display);font-weight:700;font-size:16px;letter-spacing:.01em;}
+.pod-amount small{display:block;font-family:var(--font-body);font-size:9.5px;color:var(--muted);font-weight:400;letter-spacing:.04em;margin-top:1px;}
+.pod-bar{
+  width:100%;border-radius:12px 12px 0 0;
+  display:flex;align-items:flex-start;justify-content:center;padding-top:10px;
+  font-family:var(--font-display);font-weight:700;
+  position:relative;overflow:hidden;
+}
+.pod-bar::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.25),transparent 55%);
+}
+.pod-bar::before{
+  content:"";position:absolute;left:0;right:0;bottom:-14px;height:14px;
+  background:radial-gradient(ellipse 70% 100% at 50% 0%, rgba(0,0,0,.45), transparent 80%);
+  z-index:-1;
+}
+.pod-bar .rank-num{position:relative;z-index:1;font-size:22px;text-shadow:0 2px 3px rgba(0,0,0,.25);}
+.pod-col.gold .pod-bar{height:96px;background:linear-gradient(180deg,var(--gold-pale),var(--gold) 45%,var(--gold-deep));color:#2A1A04;box-shadow:0 0 40px rgba(240,199,102,.3),inset 0 1px 0 rgba(255,255,255,.6);}
+.pod-col.silver .pod-bar{height:68px;background:linear-gradient(180deg,#FFFFFF,var(--silver) 45%,var(--silver-deep));color:#23262B;box-shadow:0 0 26px rgba(196,206,217,.22),inset 0 1px 0 rgba(255,255,255,.7);}
+.pod-col.bronze .pod-bar{height:52px;background:linear-gradient(180deg,#F0C49A,var(--bronze) 45%,var(--bronze-deep));color:#2E1B0C;box-shadow:0 0 22px rgba(205,138,82,.22),inset 0 1px 0 rgba(255,255,255,.55);}
+.pod-col.gold{order:2;}
+.pod-col.silver{order:1;}
+.pod-col.bronze{order:3;}
+
+/* sparkle for #1 */
+.sparkle{
+  position:absolute;pointer-events:none;color:var(--gold-pale);
+  font-size:14px;opacity:0;animation:sparkleFloat 2.6s ease-in-out infinite;
+  text-shadow:0 0 6px var(--gold-glow);
+}
+.sparkle.s1{top:-6px;left:6px;animation-delay:.1s;}
+.sparkle.s2{top:8px;right:-2px;animation-delay:1s;}
+.sparkle.s3{top:50%;left:-10px;animation-delay:1.8s;}
+@keyframes sparkleFloat{0%,100%{opacity:0;transform:scale(.5) translateY(0);}50%{opacity:1;transform:scale(1.1) translateY(-6px);}}
+@keyframes medalPop{0%{transform:scale(0) rotate(-30deg);}100%{transform:scale(1) rotate(0);}}
+
+/* leaderboard list */
+.section-label{
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--font-script);font-style:italic;font-size:14px;color:var(--gold-pale);
+  margin:0 0 14px 2px;
+}
+.section-label::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line-bright),transparent);}
+.list{display:flex;flex-direction:column;gap:9px;}
+.row{
+  display:flex;align-items:center;gap:13px;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.015));
+  border:1px solid var(--line);
+  border-radius:14px;padding:12px 15px;
+  min-width:0;position:relative;transition:.2s;
+}
+.row:hover{border-color:var(--line-bright);box-shadow:0 4px 18px rgba(0,0,0,.3);}
+.rank{
+  font-family:var(--font-display);font-weight:700;
+  width:28px;text-align:center;font-size:15px;color:var(--gold);flex-shrink:0;opacity:.85;
+}
+.avatar{
+  width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;
+  border:2px solid var(--gold-deep);background:var(--paper-dim);display:block;
+  box-shadow:0 0 0 1px rgba(240,199,102,.15);
+}
+.avatar.placeholder{display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:15px;color:var(--ink);}
+.info{flex:1;min-width:0;}
+.name{font-weight:600;font-size:14.5px;color:var(--paper);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sub{font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.amount{font-family:var(--font-display);font-weight:700;font-size:16px;color:var(--gold);flex-shrink:0;text-align:right;}
+.amount small{font-size:9px;color:var(--muted);display:block;font-family:var(--font-body);font-weight:400;}
+
+.empty{text-align:center;padding:50px 20px;color:#8a7f64;}
+.empty .big{font-size:38px;display:block;margin-bottom:10px;}
+
+.skel-podium{display:flex;gap:8px;align-items:flex-end;justify-content:center;margin-bottom:26px;}
+.skel-podium .s{border-radius:10px;background:linear-gradient(90deg,rgba(255,255,255,.03),rgba(255,255,255,.08),rgba(255,255,255,.03));background-size:200% 100%;animation:shimmer 1.4s infinite;}
+.skel{display:flex;flex-direction:column;gap:8px;}
+.skel-row{height:64px;border-radius:13px;background:linear-gradient(90deg,rgba(255,255,255,.03),rgba(255,255,255,.07),rgba(255,255,255,.03));background-size:200% 100%;animation:shimmer 1.4s infinite;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+/* form / card */
+.card{
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+  border:1px solid var(--line-bright);
+  border-radius:18px;padding:20px;
+  box-shadow:0 20px 50px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.card h2{font-family:var(--font-display);font-weight:600;font-size:17px;color:var(--gold-pale);margin:0 0 16px;letter-spacing:.02em;}
+.field{margin-bottom:15px;}
+.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:7px;letter-spacing:.05em;text-transform:uppercase;}
+.field input{
+  width:100%;padding:13px 14px;border-radius:10px;border:1px solid var(--line);
+  background:rgba(0,0,0,.3);color:var(--paper);font-size:16px;transition:.2s;
+}
+.field input:focus{outline:none;border-color:var(--gold-deep);box-shadow:0 0 0 3px rgba(240,199,102,.15);}
+.hint{font-size:11.5px;color:var(--muted);margin-top:7px;line-height:1.5;}
+.avatar-row{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+.avatar-preview{
+  width:62px;height:62px;border-radius:50%;object-fit:cover;border:2px solid var(--gold-deep);
+  background:var(--paper-dim);display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:700;font-size:20px;color:var(--ink);flex-shrink:0;overflow:hidden;
+  box-shadow:0 0 20px rgba(240,199,102,.2);
+}
+.avatar-preview img{width:100%;height:100%;object-fit:cover;}
+.upload-btn{
+  font-size:13px;padding:11px 16px;border-radius:9px;border:1px solid var(--gold-deep);
+  background:rgba(240,199,102,.06);color:var(--gold-pale);cursor:pointer;font-weight:600;transition:.2s;
+}
+.upload-btn:hover{background:rgba(240,199,102,.14);}
+.actions{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
+.btn{
+  padding:15px 20px;border-radius:11px;border:none;font-weight:700;font-size:15px;cursor:pointer;
+  flex:1;min-width:140px;letter-spacing:.01em;transition:.2s;
+}
+.btn-primary{
+  background:linear-gradient(180deg,var(--gold-pale),var(--gold) 45%,var(--gold-deep));
+  color:#241A05;box-shadow:0 6px 20px rgba(240,199,102,.3), inset 0 1px 0 rgba(255,255,255,.5);
+}
+.btn-primary:hover:not(:disabled){box-shadow:0 8px 26px rgba(240,199,102,.4), inset 0 1px 0 rgba(255,255,255,.5);}
+.btn-primary:disabled{opacity:.5;}
+.btn-danger{background:transparent;border:1px solid var(--crimson);color:var(--crimson-soft);flex:0;}
+.btn-danger:hover{background:rgba(162,56,56,.1);}
+.note{font-size:11.5px;color:#8a7f64;margin-top:12px;line-height:1.5;}
+
+/* donor select for editing */
+.donor-pick{
+  display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;
+}
+.donor-chip{
+  display:flex;align-items:center;gap:7px;padding:7px 12px 7px 7px;border-radius:22px;
+  border:1px solid var(--line);background:rgba(255,255,255,.03);cursor:pointer;font-size:12.5px;
+  color:var(--paper);transition:.2s;
+}
+.donor-chip:hover{border-color:var(--line-bright);}
+.donor-chip.active{border-color:var(--gold-deep);background:rgba(240,199,102,.12);color:var(--gold-pale);}
+.donor-chip .mini-avatar{width:23px;height:23px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--paper-dim);}
+.donor-chip .mini-avatar.placeholder{display:flex;align-items:center;justify-content:center;font-size:10px;font-family:var(--font-display);color:var(--ink);font-weight:700;}
+.donor-chip.new-chip{border-style:dashed;color:var(--gold);}
+
+.toast{
+  position:fixed;bottom:calc(16px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(8px);
+  background:var(--gold);color:#1C1A14;padding:11px 18px;border-radius:9px;
+  font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.4);
+  opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;
+  max-width:92vw;text-align:center;word-break:break-word;z-index:100;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.err{background:var(--crimson);color:#FBF7EC;}
+
+.loading-screen{text-align:center;color:#8a7f64;padding:60px 20px;font-size:13px;}
+.spinner{
+  width:22px;height:22px;border:2px solid var(--line);border-top-color:var(--gold);
+  border-radius:50%;margin:0 auto 12px;animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+@media (min-width:560px){
+  .row{padding:13px 16px;}
+  .avatar{width:48px;height:48px;}
+  .name{font-size:15px;}
+  .amount{font-size:17px;}
+  .pod-col{max-width:200px;}
+}
+@media (max-width:380px){
+  .podium{gap:5px;}
+  .pod-name{font-size:11.5px;}
+}
+</style>
+</head>
+<body>
+<div id="root"><div class="loading-screen"><div class="spinner"></div>กำลังเชื่อมต่อ...</div></div>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot, query
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ============================================================
+   ตั้งค่า Firebase
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyBRDVo3RiCKH4iKgwR1iAVyxGRps-6cKr0",
+  authDomain: "donater-723c7.firebaseapp.com",
+  projectId: "donater-723c7",
+  storageBucket: "donater-723c7.firebasestorage.app",
+  messagingSenderId: "523043455129",
+  appId: "1:523043455129:web:d004355c0a409f64e27808"
+};
+
+const DONORS_COL = "donors";
+const DONATIONS_COL = "donations";
+const MY_ID_LS_KEY = "donor_my_id_v1";
+
+let db = null;
+let firebaseInitError = null;
+try{
+  const app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+}catch(e){
+  firebaseInitError = e.message;
+}
+
+const { useState, useEffect, useRef, useMemo, useCallback } = React;
+const h = React.createElement;
+
+function fmtTHB(n){ return new Intl.NumberFormat('th-TH').format(Math.round(n)); }
+function initials(name){
+  if(!name) return '?';
+  const parts = name.trim().split(/\s+/);
+  return parts.length>1 ? (parts[0][0]+parts[1][0]).toUpperCase() : parts[0].slice(0,2).toUpperCase();
+}
+function colorFromName(name){
+  const colors=['#E8B84B','#C9885A','#9A6B9A','#6B9A8A','#9A2E2E','#5A7A9A'];
+  let sum=0; for(const c of (name||'?')) sum+=c.charCodeAt(0);
+  return colors[sum%colors.length];
+}
+function genId(prefix){ return prefix+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,8); }
+function getMyId(){ try{ return localStorage.getItem(MY_ID_LS_KEY); }catch(e){ return null; } }
+function setMyIdStored(id){ try{ localStorage.setItem(MY_ID_LS_KEY, id); }catch(e){} }
+
+function resizeImage(file){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload=()=>{
+      const img = new Image();
+      img.onload=()=>{
+        const maxSize=240;
+        let w=img.width, hh=img.height;
+        if(w>hh && w>maxSize){ hh=Math.round(hh*maxSize/w); w=maxSize; }
+        else if(hh>=w && hh>maxSize){ w=Math.round(w*maxSize/hh); hh=maxSize; }
+        const canvas=document.createElement('canvas');
+        canvas.width=w; canvas.height=hh;
+        canvas.getContext('2d').drawImage(img,0,0,w,hh);
+        resolve(canvas.toDataURL('image/jpeg',0.82));
+      };
+      img.onerror=()=>reject(new Error('อ่านรูปภาพไม่สำเร็จ'));
+      img.src=reader.result;
+    };
+    reader.onerror=()=>reject(new Error('อ่านไฟล์ไม่สำเร็จ'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function Avatar({name, photo, size, className, medal}){
+  const style = {width:size, height:size};
+  if(photo){
+    return h('img',{src:photo, className:'avatar'+(className?' '+className:''), style});
+  }
+  return h('div',{
+    className:'avatar placeholder'+(className?' '+className:''),
+    style:{...style, background:colorFromName(name), fontSize:Math.round(size*0.38)}
+  }, initials(name));
+}
+
+function Toast({toast}){
+  return h('div',{className:'toast'+(toast?' show':'')+(toast&&toast.type==='err'?' err':'')}, toast?toast.msg:'');
+}
+
+/* ---------------- Podium ---------------- */
+function PodiumCol({donor, rank}){
+  const cls = rank===1?'gold':rank===2?'silver':'bronze';
+  const medal = rank===1?'🥇':rank===2?'🥈':'🥉';
+  const avatarSize = rank===1?76:rank===2?60:54;
+  return h('div',{className:'pod-col '+cls},
+    h('div',{className:'pod-card'},
+      rank===1 ? h(React.Fragment,null,
+        h('span',{className:'sparkle s1'},'✦'),
+        h('span',{className:'sparkle s2'},'✧'),
+        h('span',{className:'sparkle s3'},'✦')
+      ) : null,
+      h('div',{className:'pod-avatar-ring '+cls},
+        h(Avatar,{name:donor.name, photo:donor.photo, size:avatarSize, className:'pod-avatar'}),
+        h('span',{className:'pod-medal'}, medal)
+      ),
+      h('div',{className:'pod-name'}, donor.name),
+      h('div',{className:'pod-amount'}, '฿'+fmtTHB(donor.amount), h('small',null,donor.count+' ครั้ง'))
+    ),
+    h('div',{className:'pod-bar'}, h('span',{className:'rank-num'}, rank))
+  );
+}
+
+function Podium({top3}){
+  if(top3.length===0) return null;
+  return h('div',{className:'podium-wrap'},
+    h('div',{className:'podium'},
+      top3.map((d,i)=> h(PodiumCol,{key:d.id, donor:d, rank:i+1}))
+    )
+  );
+}
+
+/* ---------------- Board tab ---------------- */
+function BoardTab({loaded, totals, myId}){
+  if(!loaded){
+    return h(React.Fragment,null,
+      h('div',{className:'skel-podium'},
+        h('div',{className:'s',style:{width:90,height:150}}),
+        h('div',{className:'s',style:{width:90,height:180}}),
+        h('div',{className:'s',style:{width:90,height:130}})
+      ),
+      h('div',{className:'skel'}, h('div',{className:'skel-row'}), h('div',{className:'skel-row'}))
+    );
+  }
+  if(totals.length===0){
+    return h('div',{className:'empty'}, h('span',{className:'big'},'🏆'), h('div',null,'ยังไม่มีผู้โดเนท เป็นคนแรกที่ขึ้นกระดานสิ!'));
+  }
+  const top3 = totals.slice(0,3);
+  const rest = totals.slice(3);
+  return h(React.Fragment,null,
+    h(Podium,{top3}),
+    rest.length>0 ? h('div',{className:'section-label'}, 'อันดับ 4 เป็นต้นไป') : null,
+    h('div',{className:'list'},
+      rest.map((d,i)=> h('div',{key:d.id, className:'row'},
+        h('div',{className:'rank'}, i+4),
+        h(Avatar,{name:d.name, photo:d.photo, size:44}),
+        h('div',{className:'info'},
+          h('div',{className:'name'}, d.name+(d.id===myId?' (คุณ)':'')),
+          h('div',{className:'sub'}, (d.note?d.note+' · ':'')+'โดเนท '+d.count+' ครั้ง')
+        ),
+        h('div',{className:'amount'}, '฿'+fmtTHB(d.amount), h('small',null,'บาท'))
+      ))
+    )
+  );
+}
+
+/* ---------------- Edit tab ---------------- */
+function EditTab({donors, donations, myId, setMyId, db, showToast, setTab}){
+  const myDonor = myId ? donors[myId] : null;
+  const [name,setName] = useState(myDonor?myDonor.name:'');
+  const [note,setNote] = useState(myDonor?myDonor.note||'':'');
+  const [photo,setPhoto] = useState(myDonor?myDonor.photo||'':'');
+  const [amount,setAmount] = useState('');
+  const [saving,setSaving] = useState(false);
+  const fileInput = useRef(null);
+  const initializedRef = useRef(false);
+
+  // populate once when myDonor first becomes available (e.g. after data loads)
+  useEffect(()=>{
+    if(!initializedRef.current && myDonor){
+      setName(myDonor.name||'');
+      setNote(myDonor.note||'');
+      setPhoto(myDonor.photo||'');
+      initializedRef.current = true;
+    }
+  },[myDonor]);
+
+  const donorList = useMemo(()=> Object.entries(donors).map(([id,d])=>({id,...d})), [donors]);
+
+  const mySummary = useMemo(()=>{
+    if(!myId) return null;
+    const mine = Object.values(donations).filter(x=>x.donorId===myId);
+    return { sum: mine.reduce((s,x)=>s+x.amount,0), count: mine.length };
+  },[donations, myId]);
+
+  const pickDonor = (id)=>{
+    if(id===null){
+      setMyId(null);
+      setName(''); setNote(''); setPhoto(''); setAmount('');
+      initializedRef.current = true;
+      return;
+    }
+    const d = donors[id];
+    setMyId(id);
+    setName(d.name||''); setNote(d.note||''); setPhoto(d.photo||''); setAmount('');
+    initializedRef.current = true;
+  };
+
+  const handleFile = async (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    if(file.size > 8*1024*1024){ showToast('ไฟล์รูปใหญ่เกินไป (จำกัด 8MB)','err'); return; }
+    try{
+      const dataUrl = await resizeImage(file);
+      setPhoto(dataUrl);
+    }catch(err){ showToast(err.message,'err'); }
+  };
+
+  const handleSave = async ()=>{
+    const trimmedName = name.trim();
+    const amt = parseFloat(amount);
+    if(!trimmedName){ showToast('กรุณาใส่ชื่อ','err'); return; }
+    const addingDonation = amount.trim()!=='';
+    if(addingDonation && (isNaN(amt) || amt<=0)){ showToast('จำนวนเงินต้องมากกว่า 0','err'); return; }
+    if(!db){ showToast('ยังไม่ได้ตั้งค่า Firebase','err'); return; }
+    if(saving) return;
+    setSaving(true);
+    try{
+      let id = myId;
+      if(!id){
+        const existing = donorList.find(d=>d.name.trim().toLowerCase()===trimmedName.toLowerCase());
+        id = existing ? existing.id : genId('d');
+      }
+      await setDoc(doc(db, DONORS_COL, id), {
+        name: trimmedName,
+        note: note.trim(),
+        photo: photo || ''
+      });
+      if(addingDonation){
+        await setDoc(doc(db, DONATIONS_COL, genId('don')), {
+          donorId: id, amount: amt, createdAt: Date.now()
+        });
+      }
+      if(myId !== id){ setMyId(id); }
+      setAmount('');
+      initializedRef.current = true;
+      showToast(addingDonation? 'บันทึกยอดโดเนทแล้ว ✓' : 'บันทึกโปรไฟล์แล้ว ✓');
+      setTab('board');
+    }catch(e){
+      showToast('บันทึกไม่สำเร็จ: '+(e&&e.message?e.message:String(e)), 'err');
+    }finally{
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async ()=>{
+    if(!myId) return;
+    if(!confirm('ลบโปรไฟล์และยอดโดเนทของ "'+name+'" ออกจากกระดานทั้งหมดหรือไม่?')) return;
+    if(!db){ showToast('ยังไม่ได้ตั้งค่า Firebase','err'); return; }
+    setSaving(true);
+    try{
+      await deleteDoc(doc(db, DONORS_COL, myId));
+      const myDonationIds = Object.entries(donations).filter(([id,d])=>d.donorId===myId).map(([id])=>id);
+      await Promise.all(myDonationIds.map(id=>deleteDoc(doc(db, DONATIONS_COL, id))));
+      setMyId(null);
+      setName(''); setNote(''); setPhoto(''); setAmount('');
+      showToast('ลบโปรไฟล์แล้ว');
+      setTab('board');
+    }catch(e){
+      showToast('ลบไม่สำเร็จ: '+(e&&e.message?e.message:String(e)), 'err');
+    }finally{
+      setSaving(false);
+    }
+  };
+
+  return h('div',{className:'card'},
+    h('h2',null, myId ? 'แก้ไขโปรไฟล์: '+name : 'เพิ่มผู้โดเนทใหม่'),
+
+    donorList.length>0 ? h('div',{className:'donor-pick'},
+      h('div',{className:'donor-chip new-chip'+(myId===null?' active':''), onClick:()=>pickDonor(null)}, '+ ใหม่'),
+      donorList.map(d=> h('div',{
+        key:d.id,
+        className:'donor-chip'+(myId===d.id?' active':''),
+        onClick:()=>pickDonor(d.id)
+      },
+        h(Avatar,{name:d.name, photo:d.photo, size:22, className:'mini-avatar'}),
+        d.name
+      ))
+    ) : null,
+
+    h('div',{className:'avatar-row'},
+      h('div',{className:'avatar-preview', style: photo?{}:{background:colorFromName(name)}},
+        photo ? h('img',{src:photo}) : initials(name)
+      ),
+      h('button',{className:'upload-btn', onClick:()=>fileInput.current && fileInput.current.click()}, 'อัปโหลด/เปลี่ยนรูป'),
+      h('input',{ref:fileInput, type:'file', accept:'image/*', style:{display:'none'}, onChange:handleFile})
+    ),
+
+    h('div',{className:'field'},
+      h('label',null,'ชื่อผู้โดเนท'),
+      h('input',{value:name, onChange:e=>setName(e.target.value), placeholder:'เช่น คุณสมชาย ใจดี', maxLength:50})
+    ),
+
+    h('div',{className:'field'},
+      h('label',null,'เพิ่มยอดโดเนทครั้งนี้ (บาท) — เว้นว่างได้ถ้าแค่แก้โปรไฟล์'),
+      h('input',{value:amount, onChange:e=>setAmount(e.target.value.replace(/[^0-9.]/g,'')), placeholder:'เช่น 500', inputMode:'decimal'}),
+      mySummary ? h('div',{className:'hint'}, 'ยอดสะสมปัจจุบัน ฿'+fmtTHB(mySummary.sum)+' ('+mySummary.count+' ครั้ง) — กรอกยอดใหม่ที่นี่ ระบบจะบวกเพิ่มให้เอง') : null
+    ),
+
+    h('div',{className:'field'},
+      h('label',null,'ข้อความ / หมายเหตุ (ไม่บังคับ)'),
+      h('input',{value:note, onChange:e=>setNote(e.target.value), placeholder:'เช่น ขอให้โครงการสำเร็จ', maxLength:60})
+    ),
+
+    h('div',{className:'actions'},
+      h('button',{className:'btn btn-primary', onClick:handleSave, disabled:saving}, saving?'กำลังบันทึก...':(myId?'บันทึกการแก้ไข':'เพิ่มลงกระดาน')),
+      myId ? h('button',{className:'btn btn-danger', onClick:handleDelete, disabled:saving}, 'ลบโปรไฟล์') : null
+    ),
+    h('p',{className:'note'}, 'เลือกชื่อที่มีอยู่แล้วด้านบนเพื่อแก้ไขรูป ข้อมูล หรือเพิ่มยอดโดเนทให้คนนั้น ระบบจะรวมยอดสะสมให้อัตโนมัติทุกครั้งที่บันทึก')
+  );
+}
+
+/* ---------------- App ---------------- */
+function App(){
+  const [tab,setTab] = useState('board');
+  const [donors,setDonors] = useState({});
+  const [donations,setDonations] = useState({});
+  const [loaded,setLoaded] = useState(false);
+  const [connOk,setConnOk] = useState(!!db);
+  const [myId,setMyIdState] = useState(getMyId());
+  const [toast,setToast] = useState(null);
+  const toastTimer = useRef(null);
+
+  const setMyId = (id)=>{
+    setMyIdState(id);
+    if(id){ setMyIdStored(id); }
+    else { try{ localStorage.removeItem(MY_ID_LS_KEY); }catch(e){} }
+  };
+
+  const showToast = useCallback((msg,type='ok')=>{
+    setToast({msg,type});
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(()=>setToast(null), 4500);
+  },[]);
+
+  useEffect(()=>{
+    if(!db){ setLoaded(true); return; }
+    const unsub1 = onSnapshot(query(collection(db, DONORS_COL)), (snap)=>{
+      const map={}; snap.forEach(d=>{ map[d.id]=d.data(); });
+      setDonors(map); setLoaded(true); setConnOk(true);
+    }, (err)=>{ setLoaded(true); setConnOk(false); showToast('เชื่อมต่อฐานข้อมูลไม่ได้: '+err.message,'err'); });
+
+    const unsub2 = onSnapshot(query(collection(db, DONATIONS_COL)), (snap)=>{
+      const map={}; snap.forEach(d=>{ map[d.id]=d.data(); });
+      setDonations(map);
+    });
+    return ()=>{ unsub1(); unsub2(); };
+  },[showToast]);
+
+  const totals = useMemo(()=>{
+    const sums={}, counts={};
+    Object.values(donations).forEach(d=>{
+      sums[d.donorId]=(sums[d.donorId]||0)+d.amount;
+      counts[d.donorId]=(counts[d.donorId]||0)+1;
+    });
+    return Object.entries(donors)
+      .map(([id,d])=>({id,...d, amount:sums[id]||0, count:counts[id]||0}))
+      .filter(d=>d.count>0)
+      .sort((a,b)=>b.amount-a.amount);
+  },[donors, donations]);
+
+  const banner = firebaseInitError
+    ? h('div',{className:'banner'}, h('span',{className:'dot'}), 'เชื่อมต่อ Firebase ล้มเหลว: '+firebaseInitError)
+    : (connOk
+        ? h('div',{className:'banner ok'}, h('span',{className:'dot'}), 'เชื่อมต่อฐานข้อมูลแล้ว ข้อมูลอัปเดตเรียลไทม์')
+        : h('div',{className:'banner'}, h('span',{className:'dot'}), 'เชื่อมต่อฐานข้อมูลไม่ได้ ตรวจสอบ Firestore rules / อินเทอร์เน็ต'));
+
+  return h('div',{className:'app'},
+    h('div',{className:'wrap'},
+      h('div',{className:'hero'},
+        h('span',{className:'crown'},'👑'),
+        h('h1',null,'กระดานผู้สนับสนุนสูงสุด'),
+        h('div',{className:'rule'}),
+        h('p',null,'Top Donors Leaderboard')
+      ),
+      banner,
+      h('div',{className:'tabs'},
+        h('button',{className:'tab'+(tab==='board'?' active':''), onClick:()=>setTab('board')}, 'อันดับผู้โดเนท'),
+        h('button',{className:'tab'+(tab==='edit'?' active':''), onClick:()=>setTab('edit')}, 'เพิ่ม/แก้ไขโปรไฟล์')
+      ),
+      tab==='board'
+        ? h(BoardTab,{loaded, totals, myId})
+        : h(EditTab,{donors, donations, myId, setMyId, db, showToast, setTab})
+    ),
+    h(Toast,{toast})
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(h(App));
+</script>
+</body>
+</html>
